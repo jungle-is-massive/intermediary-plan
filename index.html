@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jungle × Intermediary Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #F5F2EB;
+  --black: #111110;
+  --green: #8BFF57;
+  --green-dim: #5acc30;
+  --white: #FAFAF7;
+  --grey-light: #ECEAE3;
+  --grey: #C8C4BB;
+  --grey-mid: #888580;
+  --border: #E2DFD8;
+  --red: #e05c5c;
+  --amber: #f5a623;
+  --blue: #4a90d9;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--black);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--black);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 28px; height: 52px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.nav-logo {
+  font-size: 13px; font-weight: 800; color: var(--green);
+  letter-spacing: -0.01em; margin-right: 32px; white-space: nowrap;
+}
+.nav-logo span { color: rgba(255,255,255,0.4); font-weight: 400; }
+.nav-tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  background: none; border: none; color: rgba(255,255,255,0.45);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 0 14px; height: 52px; cursor: pointer; white-space: nowrap;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+  letter-spacing: 0.01em;
+}
+.nav-tab:hover { color: rgba(255,255,255,0.8); }
+.nav-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+/* ── LAYOUT ── */
+.view { display: none; padding-top: 52px; min-height: 100vh; }
+.view.active { display: block; }
+.page { max-width: 1100px; margin: 0 auto; padding: 52px 32px 100px; }
+.page-narrow { max-width: 820px; margin: 0 auto; padding: 52px 32px 100px; }
+
+/* ── TYPOGRAPHY ── */
+.page-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--grey-mid); margin-bottom: 8px; }
+.page-title { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 10px; }
+.page-sub { font-size: 14px; color: var(--grey-mid); line-height: 1.6; max-width: 600px; margin-bottom: 40px; }
+h3 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black); }
+
+/* ── CARDS ── */
+.card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; }
+.card + .card { margin-top: 16px; }
+.card-grid { display: grid; gap: 16px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ── STAT CARDS ── */
+.stat-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+.stat-label { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-mid); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.stat-value.green { color: var(--green-dim); }
+.stat-value.amber { color: var(--amber); }
+.stat-sub { font-size: 11px; color: var(--grey-mid); margin-top: 4px; }
+
+/* ── SECTION HEADERS ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.section-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.section-divider { border: none; border-top: 1.5px solid var(--border); margin: 40px 0; }
+
+/* ── PILLS & BADGES ── */
+.pill { display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 100px; white-space: nowrap; }
+.pill-green { background: rgba(139,255,87,0.2); color: #2d6b00; }
+.pill-amber { background: rgba(245,166,35,0.15); color: #7a4e00; }
+.pill-red { background: rgba(224,92,92,0.12); color: #9b1c1c; }
+.pill-blue { background: rgba(74,144,217,0.12); color: #1a4a7a; }
+.pill-grey { background: var(--grey-light); color: var(--grey-mid); }
+.pill-black { background: var(--black); color: var(--green); }
+
+/* ── TABLES ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-mid); padding: 10px 14px; text-align: left; background: var(--grey-light); white-space: nowrap; }
+.data-table th.right { text-align: right; }
+.data-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--black); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: rgba(0,0,0,0.015); }
+.data-table tfoot td { font-weight: 700; background: var(--grey-light); border-top: 2px solid var(--black); font-family: 'DM Mono', monospace; font-size: 11px; padding: 11px 14px; }
+.data-table td.right, .data-table tfoot td.right { text-align: right; font-family: 'DM Mono', monospace; }
+.table-wrap { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; }
+
+/* ── STRENGTH METER ── */
+.strength-bar { display: flex; gap: 3px; align-items: center; }
+.strength-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grey-light); }
+.strength-dot.filled { background: var(--green-dim); }
+.strength-dot.filled.weak { background: var(--amber); }
+.strength-dot.filled.cold { background: var(--red); }
+
+/* ── TIMELINE ── */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: grid; grid-template-columns: 130px 1fr; gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.timeline-item:last-child { border-bottom: none; }
+.timeline-date { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey-mid); padding-top: 2px; }
+.timeline-content { }
+.timeline-who { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+.timeline-org { font-size: 11px; color: var(--grey-mid); margin-bottom: 5px; }
+.timeline-note { font-size: 12px; color: #444; line-height: 1.5; }
+
+/* ── PEOPLE CARDS ── */
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.person-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px; }
+.person-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.person-title { font-size: 11px; color: var(--grey-mid); margin-bottom: 10px; }
+.person-meta { display: flex; align-items: center; justify-content: space-between; }
+
+/* ── PLAN SECTIONS ── */
+.plan-block { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 28px 30px; margin-bottom: 16px; }
+.plan-block-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-mid); margin-bottom: 10px; }
+.plan-block-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; }
+.plan-block p { font-size: 13px; color: #444; line-height: 1.7; margin-bottom: 12px; }
+.plan-block p:last-child { margin-bottom: 0; }
+.plan-block ul { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
+.plan-block ul li { font-size: 13px; color: #444; padding-left: 18px; position: relative; line-height: 1.6; }
+.plan-block ul li::before { content: '→'; position: absolute; left: 0; color: var(--green-dim); font-weight: 700; font-size: 11px; top: 2px; }
+.plan-callout { background: rgba(139,255,87,0.08); border: 1.5px solid rgba(139,255,87,0.3); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 13px; font-weight: 600; color: var(--black); line-height: 1.6; }
+
+/* ── CADENCE GRID ── */
+.cadence-grid { display: grid; grid-template-columns: 140px 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
+.cadence-label { background: var(--grey-light); padding: 16px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.01em; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; }
+.cadence-label:last-of-type { border-bottom: none; }
+.cadence-content { background: var(--white); padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 12px; color: #444; line-height: 1.6; }
+.cadence-content:last-child { border-bottom: none; }
+.cadence-content ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cadence-content ul li { padding-left: 14px; position: relative; }
+.cadence-content ul li::before { content: '·'; position: absolute; left: 3px; color: var(--grey-mid); }
+
+/* ── KPI TABLE ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.kpi-block { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 20px; }
+.kpi-block-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-mid); margin-bottom: 14px; }
+.kpi-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.kpi-item:last-child { border-bottom: none; }
+.kpi-name { font-size: 12px; color: var(--black); }
+.kpi-target { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--green-dim); }
+
+/* ── INT CARDS (overview) ── */
+.int-overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.int-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 22px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.int-card:hover { border-color: var(--black); box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.int-card-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.int-card-type { font-size: 11px; color: var(--grey-mid); margin-bottom: 14px; }
+.int-card-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.int-card-meta { font-size: 11px; color: var(--grey-mid); }
+.int-card-meta strong { color: var(--black); }
+.int-card-footer { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); justify-content: space-between; }
+.int-next { font-size: 11px; color: var(--grey-mid); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.int-next strong { color: var(--black); }
+
+/* ── ROI ── */
+.roi-highlight { background: rgba(139,255,87,0.1); border: 1.5px solid rgba(139,255,87,0.35); border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.roi-label { font-size: 12px; font-weight: 600; color: var(--black); }
+.roi-value { font-size: 22px; font-weight: 800; color: var(--green-dim); letter-spacing: -0.02em; }
+
+/* ── TABS ── */
+.sub-tabs { display: flex; gap: 0; border-bottom: 1.5px solid var(--border); margin-bottom: 28px; }
+.sub-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--grey-mid); cursor: pointer; transition: all 0.15s; margin-bottom: -2px; }
+.sub-tab:hover { color: var(--black); }
+.sub-tab.active { color: var(--black); border-bottom-color: var(--black); }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* ── MISC ── */
+.mono { font-family: 'DM Mono', monospace; }
+.muted { color: var(--grey-mid); }
+.green { color: var(--green-dim); }
+.amber { color: var(--amber); }
+.red-text { color: var(--red); }
+.bold { font-weight: 700; }
+.flex { display: flex; align-items: center; gap: 8px; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.mt32 { margin-top: 32px; }
+.empty { text-align: center; padding: 48px; color: var(--grey-mid); font-size: 13px; font-style: italic; }
+
+@media (max-width: 768px) {
+  .card-grid-2, .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .page, .page-narrow { padding: 40px 20px 80px; }
+  .page-title { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Jungle <span>/</span> Intermediaries</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="showView('plan',this)">The Plan</button>
+    <button class="nav-tab" onclick="showView('dashboard',this)">Dashboard</button>
+    <button class="nav-tab" onclick="showView('tracking',this)">Tracking</button>
+    <button class="nav-tab" onclick="showView('people',this)">People Map</button>
+    <button class="nav-tab" onclick="showView('roi',this)">ROI Review</button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     OVERVIEW
+════════════════════════════════════════════ -->
+<div class="view active" id="view-overview">
+<div class="page">
+  <div class="page-label">Jungle Creations · BD</div>
+  <div class="page-title">Intermediary Plan</div>
+  <div class="page-sub">Building mental availability at the point of pitch creation. Not relationships for their own sake — presence at the moment it counts.</div>
+
+  <!-- Top stats -->
+  <div class="card-grid card-grid-4 mt8" id="overview-stats"></div>
+
+  <hr class="section-divider">
+
+  <!-- Intermediary cards -->
+  <div class="section-header">
+    <div class="section-title">All Intermediaries</div>
+    <div style="display:flex;gap:8px">
+      <span class="pill pill-black">Paid</span>
+      <span class="pill pill-grey">Unpaid</span>
+    </div>
+  </div>
+  <div class="int-overview-grid" id="overview-int-grid"></div>
+
+  <hr class="section-divider">
+
+  <!-- Recent activity -->
+  <div class="section-title" style="margin-bottom:20px">Recent Touchpoints</div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr>
+        <th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Notes</th><th>Next Step</th>
+      </tr></thead>
+      <tbody id="overview-touchpoints"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     THE PLAN
+════════════════════════════════════════════ -->
+<div class="view" id="view-plan">
+<div class="page-narrow">
+  <div class="page-label">Strategy</div>
+  <div class="page-title">The Plan</div>
+  <div class="page-sub">What we're doing, why, and how. The operating manual for Jungle's intermediary programme.</div>
+
+  <div class="plan-block">
+    <div class="plan-block-label">01 · What this is</div>
+    <div class="plan-block-title">Building mental availability at the point of pitch creation.</div>
+    <p>A focused programme to make Jungle one of the first agencies intermediaries think of when a social, influencer or content brief lands.</p>
+    <p>Not brand awareness. Not relationship building for its own sake. Presence at the exact moment a consultant is constructing a longlist.</p>
+    <div class="plan-callout">If they don't instantly get you, you won't make the longlist. If they don't trust you commercially, you won't make the shortlist. This plan solves both.</div>
+  </div>
+
+  <div class="plan-block">
+    <div class="plan-block-label">02 · Why we're doing it</div>
+    <div class="plan-block-title">Because intermediaries control access to the pitches worth winning.</div>
+    <ul>
+      <li>They control access to high-value, structured pitches</li>
+      <li>They shortcut cold outreach — you're pre-validated before entering the room</li>
+      <li>A recommendation from an intermediary carries more weight than any credentials deck</li>
+      <li>Without an active programme, you're invisible at the moment that matters</li>
+    </ul>
+  </div>
+
+  <div class="plan-block">
+    <div class="plan-block-label">03 · What we hope to achieve</div>
+    <div class="plan-block-title">Consistent inclusion. Regular face time. A predictable pipeline contribution.</div>
+    <ul>
+      <li>Consistent inclusion in relevant longlists within 6 months</li>
+      <li>Regular face time with key consultants across all Tier 1 partners</li>
+      <li>Being recommended, not just considered — an unprompted mention to a brand</li>
+      <li>A measurable pipeline contribution from intermediary-sourced pitches</li>
+      <li>Jungle understood clearly in 10 seconds by every active consultant</li>
+    </ul>
+  </div>
+
+  <!-- KPIs -->
+  <div class="plan-block">
+    <div class="plan-block-label">04 · KPIs</div>
+    <div class="plan-block-title">Activity and outcome. Both are non-negotiable.</div>
+    <div class="kpi-grid mt16">
+      <div class="kpi-block">
+        <div class="kpi-block-title">Activity KPIs</div>
+        <div class="kpi-item"><span class="kpi-name">Intermediary meetings / month</span><span class="kpi-target">4+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Meaningful touchpoints / month</span><span class="kpi-target">12+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Events attended / hosted / quarter</span><span class="kpi-target">3+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Thought pieces sent / quarter</span><span class="kpi-target">4+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Senior contacts per intermediary</span><span class="kpi-target">2+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Orgs with active next action</span><span class="kpi-target">100%</span></div>
+      </div>
+      <div class="kpi-block">
+        <div class="kpi-block-title">Outcome KPIs</div>
+        <div class="kpi-item"><span class="kpi-name">Longlist inclusions / quarter</span><span class="kpi-target">3+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Shortlist conversions</span><span class="kpi-target">50%</span></div>
+        <div class="kpi-item"><span class="kpi-name">Pitches received / year</span><span class="kpi-target">8+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Win rate (intermediary-led)</span><span class="kpi-target">30%+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Revenue from int. pitches</span><span class="kpi-target">£500k+</span></div>
+        <div class="kpi-item"><span class="kpi-name">Editorial features / year</span><span class="kpi-target">6+</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cadence -->
+  <div class="plan-block">
+    <div class="plan-block-label">05 · Relationship cadence</div>
+    <div class="plan-block-title">Three phases. Then a repeating drum.</div>
+
+    <h4 style="margin-top:16px;margin-bottom:8px">Phase 1 — Initial intro</h4>
+    <p>Tight, tailored creds. Clear POV. Show where Jungle fits and — crucially — where it doesn't. Goal: <em>"I get it. They're different."</em></p>
+
+    <h4 style="margin-top:16px;margin-bottom:8px">Phase 2 — Build familiarity (months 1–3)</h4>
+    <div class="cadence-grid" style="margin-top:10px">
+      <div class="cadence-label">Month 1</div>
+      <div class="cadence-content">Intro meeting. Tailored creds. Agree best way to stay in touch.</div>
+      <div class="cadence-label">Month 1–2</div>
+      <div class="cadence-content">Send one sharp POV piece. Not a newsletter — something specific to them.</div>
+      <div class="cadence-label">Month 2</div>
+      <div class="cadence-content">Invite to something: event, breakfast, roundtable. Make it worth their time.</div>
+      <div class="cadence-label">Month 3</div>
+      <div class="cadence-content">Follow up with a relevant case study. Commercial results front and centre.</div>
+    </div>
+
+    <h4 style="margin-top:24px;margin-bottom:8px">Phase 3 — Stay front of mind (ongoing)</h4>
+    <div class="cadence-grid" style="margin-top:10px">
+      <div class="cadence-label">Monthly</div>
+      <div class="cadence-content"><ul>
+        <li>One valuable piece: POV, data insight, or strong case study with commercial proof</li>
+        <li>LinkedIn engagement — thoughtful comments, not likes</li>
+      </ul></div>
+      <div class="cadence-label">Quarterly</div>
+      <div class="cadence-content"><ul>
+        <li>In-person: coffee, breakfast, or lunch</li>
+        <li>Invite to Jungle-hosted event or roundtable</li>
+        <li>Relationship strength review — is this moving?</li>
+      </ul></div>
+      <div class="cadence-label">Events</div>
+      <div class="cadence-content"><ul>
+        <li>Attend their roundtables and panels</li>
+        <li>Follow up within 48 hours with context, not just "great to see you"</li>
+        <li>Track yield: attended → meetings set → opportunities opened</li>
+      </ul></div>
+      <div class="cadence-label">Trigger-based</div>
+      <div class="cadence-content"><ul>
+        <li>Brand they work with announces something relevant</li>
+        <li>Pitch in market in Jungle's sweet spot</li>
+        <li>Key contact changes role</li>
+        <li>Jungle wins an award or lands a notable campaign</li>
+      </ul></div>
+    </div>
+    <div class="plan-callout" style="margin-top:16px">Never "check in." Always bring something useful, sharp, or relevant. Every touchpoint should justify itself.</div>
+  </div>
+
+  <!-- What else -->
+  <div class="plan-block">
+    <div class="plan-block-label">06 · What else belongs in this programme</div>
+    <div class="plan-block-title">The things most agencies miss.</div>
+    <ul>
+      <li><strong>Intermediary-specific creds deck</strong> — faster, clearer, outcomes over outputs. Makes their job easier.</li>
+      <li><strong>Defined right to win</strong> — be explicit about which briefs Jungle should and shouldn't be on. Trust-building shortcut.</li>
+      <li><strong>Thought leadership mapped to them</strong> — Social Maturity, Death of Vanity, Audience Intelligence fed consistently into intermediary conversations, not broadcast separately.</li>
+      <li><strong>Org mapping</strong> — know the MD, the consultants who build longlists, and the juniors who are rising. The mid-level people often make the call.</li>
+      <li><strong>Referral asks</strong> — at the right moment, ask a warm contact to recommend Jungle to a specific brand. Rare, high-value, must be planned.</li>
+      <li><strong>Internal alignment</strong> — everyone who meets intermediaries tells the same story, hits the same drumbeat, reinforces the same positioning. No freelancing.</li>
+      <li><strong>Credential refresh moments</strong> — new capability, key hire, significant result. Not every update — the signal ones only.</li>
+      <li><strong>Quarterly review loop</strong> — which intermediaries are driving pipeline, which aren't, where you're being blocked, what feedback you're getting. Then adjust.</li>
+    </ul>
+  </div>
+
+  <!-- Two tracks -->
+  <div class="plan-block">
+    <div class="plan-block-label">07 · Two tracks running simultaneously</div>
+    <div class="plan-block-title">Paid partners and unpaid relationships need different approaches.</div>
+    <div class="card-grid card-grid-2 mt16">
+      <div style="background:rgba(139,255,87,0.06);border:1.5px solid rgba(139,255,87,0.25);border-radius:12px;padding:18px 20px">
+        <h4 style="margin-bottom:8px">Track 1 — Paid roster partners</h4>
+        <p style="font-size:12px;color:#444;line-height:1.6">Formal, obligatory relationships. They <em>have</em> to know you. The risk is complacency — being on the roster doesn't mean getting called. Earn your place actively or you become shelf-ware.</p>
+      </div>
+      <div style="background:rgba(74,144,217,0.06);border:1.5px solid rgba(74,144,217,0.2);border-radius:12px;padding:18px 20px">
+        <h4 style="margin-bottom:8px">Track 2 — Known but unpaid</h4>
+        <p style="font-size:12px;color:#444;line-height:1.6">No obligation on their side. The relationship has to earn its right to exist through genuine value exchange. Harder to sustain but often where unexpected opportunities come from.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+<div class="page">
+  <div class="page-label">Commercial view</div>
+  <div class="page-title">Dashboard</div>
+  <div class="page-sub">Pipeline contribution, relationship health, and activity summary across all intermediary relationships.</div>
+
+  <div class="card-grid card-grid-4" id="dash-stats" style="margin-bottom:32px"></div>
+
+  <!-- Pipeline table -->
+  <div class="section-header">
+    <div class="section-title">Pipeline by Intermediary</div>
+    <div style="font-size:12px;color:var(--grey-mid)">Conversion rate: <input id="conv-rate" type="number" min="1" max="100" value="30" style="width:52px;font-family:'DM Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:2px 6px;background:var(--white)" oninput="renderDashboard()">%</div>
+  </div>
+  <div class="table-wrap" style="margin-bottom:32px">
+    <table class="data-table" id="pipeline-table">
+      <thead><tr>
+        <th>Intermediary</th><th>Tier</th><th>Status</th>
+        <th class="right">Annual Fee (£)</th>
+        <th class="right">Pitches Exp.</th>
+        <th class="right">Avg Value (£)</th>
+        <th class="right">Projected Rev (£)</th>
+        <th class="right">Rel. Strength</th>
+      </tr></thead>
+      <tbody id="pipeline-body"></tbody>
+      <tfoot id="pipeline-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- Activity summary -->
+  <div class="section-header"><div class="section-title">Activity This Quarter</div></div>
+  <div class="card-grid card-grid-3" id="activity-cards" style="margin-bottom:32px"></div>
+
+  <!-- Dormant alert -->
+  <div class="section-header"><div class="section-title">Needs Attention</div></div>
+  <div id="dormant-list" class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Intermediary</th><th>Last Touchpoint</th><th>Days Since</th><th>Next Planned Action</th><th>Owner</th></tr></thead>
+      <tbody id="dormant-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     TRACKING
+════════════════════════════════════════════ -->
+<div class="view" id="view-tracking">
+<div class="page">
+  <div class="page-label">Operational layer</div>
+  <div class="page-title">Tracking</div>
+  <div class="page-sub">Touchpoints, briefs, editorial mentions, events, and opportunities. The data that feeds everything else.</div>
+
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="switchTrackTab('touchpoints',this)">Touchpoints</button>
+    <button class="sub-tab" onclick="switchTrackTab('briefs',this)">Briefs & Pitches</button>
+    <button class="sub-tab" onclick="switchTrackTab('editorial',this)">Editorial</button>
+    <button class="sub-tab" onclick="switchTrackTab('events',this)">Events</button>
+    <button class="sub-tab" onclick="switchTrackTab('opportunities',this)">Win / Loss Log</button>
+  </div>
+
+  <!-- Touchpoints -->
+  <div class="sub-panel active" id="track-touchpoints">
+    <div class="flex-between" style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--grey-mid)">All meaningful interactions logged here.</div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Owner</th><th>Notes</th><th>Next Step</th></tr></thead>
+        <tbody id="tp-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Briefs -->
+  <div class="sub-panel" id="track-briefs">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Date Received</th><th>Brand</th><th>Via</th><th>Brief Type</th><th>Est. Value (£)</th><th>Stage</th><th>Outcome</th><th>Notes</th></tr></thead>
+        <tbody id="briefs-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Editorial -->
+  <div class="sub-panel" id="track-editorial">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Publication</th><th>Feature Type</th><th>Title / Topic</th><th>Commercial Movement?</th><th>Meetings Booked</th></tr></thead>
+        <tbody id="editorial-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Events -->
+  <div class="sub-panel" id="track-events">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Event</th><th>Host</th><th>Type</th><th>Jungle Attended?</th><th>Meetings Set</th><th>Opportunities Opened</th><th>Follow-up Sent</th></tr></thead>
+        <tbody id="events-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Win/Loss -->
+  <div class="sub-panel" id="track-opportunities">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Pitch</th><th>Brand</th><th>Via</th><th>Date</th><th>Est. Value (£)</th><th>Outcome</th><th>Loss Reason</th><th>Learnings</th></tr></thead>
+        <tbody id="opps-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PEOPLE MAP
+════════════════════════════════════════════ -->
+<div class="view" id="view-people">
+<div class="page">
+  <div class="page-label">Relationship depth</div>
+  <div class="page-title">People Map</div>
+  <div class="page-sub">Know the organisation isn't enough. Map who matters, who likes Jungle, who needs winning over, and who actually influences longlists.</div>
+
+  <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap" id="people-filter-btns"></div>
+  <div id="people-sections"></div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     ROI REVIEW
+════════════════════════════════════════════ -->
+<div class="view" id="view-roi">
+<div class="page">
+  <div class="page-label">Quarterly review</div>
+  <div class="page-title">ROI Review</div>
+  <div class="page-sub">Which intermediaries are driving pipeline. Which aren't. Where you're being blocked. Use this every quarter to decide where to invest, stay, or cut.</div>
+
+  <div class="table-wrap" style="margin-bottom:32px">
+    <table class="data-table">
+      <thead><tr>
+        <th>Intermediary</th><th>Paid?</th>
+        <th class="right">Annual Fee</th>
+        <th class="right">Briefs Rec'd</th>
+        <th class="right">Pitches</th>
+        <th class="right">Wins</th>
+        <th class="right">Revenue Won</th>
+        <th class="right">Cost / Brief</th>
+        <th class="right">Cost / Win</th>
+        <th class="right">ROI</th>
+        <th>Verdict</th>
+      </tr></thead>
+      <tbody id="roi-body"></tbody>
+      <tfoot id="roi-foot"></tfoot>
+    </table>
+  </div>
+
+  <div class="section-header"><div class="section-title">Efficiency Benchmarks</div></div>
+  <div class="card-grid card-grid-3" id="roi-benchmarks"></div>
+
+  <hr class="section-divider">
+  <div class="section-title" style="margin-bottom:16px">Blockers & Feedback Log</div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Intermediary</th><th>Person</th><th>Blocker / Feedback</th><th>What to do about it</th><th>Status</th></tr></thead>
+      <tbody id="blockers-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+
+const INTERMEDIARIES = [
+  { id:'aar', name:'AAR', tier:1, paid:true, status:'Active', fee:8500, pitches_expected:4, avg_value:280000, rel_strength:3, last_touchpoint:'2026-03-28', next_action:'Send Social Maturity POV piece', owner:'Coris', notes:'Good initial meeting. Need to get in front of Helen and James.' },
+  { id:'ingenuity', name:'Ingenuity+', tier:1, paid:true, status:'Active', fee:6000, pitches_expected:3, avg_value:250000, rel_strength:2, last_touchpoint:'2026-03-14', next_action:'Follow up on MAD//Meets intro', owner:'Coris', notes:'Met at MAD//Meets. Strong initial interest in social-first angle.' },
+  { id:'creativebrief', name:'Creativebrief', tier:1, paid:true, status:'Active', fee:7200, pitches_expected:5, avg_value:150000, rel_strength:4, last_touchpoint:'2026-04-02', next_action:'Submit case study for Bite editorial', owner:'Coris', notes:'Editorial relationship as well as pitch. Strong fit for our positioning.' },
+  { id:'oystercatchers', name:'Oystercatchers', tier:1, paid:true, status:'Active', fee:9000, pitches_expected:3, avg_value:320000, rel_strength:2, last_touchpoint:'2026-03-10', next_action:'Book coffee with Sarah — overdue', owner:'Jade', notes:'Need to deepen relationship beyond initial registration.' },
+  { id:'observatory', name:'Observatory International', tier:2, paid:false, status:'Warm', fee:0, pitches_expected:2, avg_value:200000, rel_strength:3, last_touchpoint:'2026-03-28', next_action:'Attend their next roundtable', owner:'Coris', notes:'Unpaid but genuinely influential. Worth consistent investment.' },
+  { id:'tuffon', name:'Tuffon Hall', tier:2, paid:false, status:'Warm', fee:0, pitches_expected:1, avg_value:180000, rel_strength:2, last_touchpoint:'2026-02-20', next_action:'Send Death of Vanity piece', owner:'Coris', notes:'Senior consultancy. Slow to warm but worth it.' },
+  { id:'elevator', name:'Nicky Bullard / Elevator', tier:2, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:150000, rel_strength:1, last_touchpoint:'2026-03-05', next_action:'Arrange intro lunch with Coris + Jade', owner:'Jade', notes:'Independent. Highly influential with mid-market brands.' },
+  { id:'masterclassing', name:'Masterclassing', tier:3, paid:true, status:'Active', fee:3500, pitches_expected:2, avg_value:100000, rel_strength:3, last_touchpoint:'2026-04-08', next_action:'Confirm Sep speaking slot', owner:'Coris', notes:'More of a visibility play. Speaking slot in Sep confirmed in principle.' },
+  { id:'gonetwork', name:'The GO Network', tier:2, paid:true, status:'Active', fee:4200, pitches_expected:2, avg_value:175000, rel_strength:2, last_touchpoint:'2026-03-20', next_action:'Submit profile update + new case studies', owner:'Coris', notes:'Directory + editorial. Profile needs refreshing.' },
+  { id:'adassoc', name:'Advertising Association', tier:3, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:200000, rel_strength:1, last_touchpoint:'2026-02-14', next_action:'Identify right events to attend', owner:'Coris', notes:'Long-term play. Valuable for brand positioning.' },
+];
+
+const TOUCHPOINTS = [
+  { date:'2026-04-08', org_id:'masterclassing', person:'James Fenwick', type:'Meeting', owner:'Coris', notes:'Confirmed September speaking slot for Social Maturity session.', next_step:'Draft session outline by end of April' },
+  { date:'2026-04-02', org_id:'creativebrief', person:'Ruth Mortimer', type:'Coffee', owner:'Coris', notes:'Discussed editorial calendar. Ruth keen on Audience Intelligence angle for Bite.', next_step:'Submit 400-word pitch for Bite feature by 15 April' },
+  { date:'2026-03-28', org_id:'aar', person:'Helen Catterall', type:'Intro Meeting', owner:'Coris', notes:'Strong first meeting. Helen engaged with social-first angle. Asked for commercial case studies.', next_step:'Send top 3 case studies with revenue impact data' },
+  { date:'2026-03-28', org_id:'observatory', person:'Tom Darby', type:'Event', owner:'Coris', notes:'Met at Observatory roundtable on brand purpose. Good conversation.', next_step:'Follow up with POV piece within 2 weeks' },
+  { date:'2026-03-20', org_id:'gonetwork', person:'Sarah Miles', type:'Email', owner:'Coris', notes:'Chased profile update. Sarah confirmed submission window open.', next_step:'Submit updated profile + 2 new case studies' },
+  { date:'2026-03-14', org_id:'ingenuity', person:'Chris Dodd', type:'Event', owner:'Jade', notes:'Met at MAD//Meets. Brief conversation. Follow-up interest expressed.', next_step:'Coris to send tailored deck within 1 week' },
+  { date:'2026-03-10', org_id:'oystercatchers', person:'Sarah Golding', type:'Intro Meeting', owner:'Jade', notes:'Initial registration meeting. Good but generic. Need to go deeper.', next_step:'Book coffee with Sarah specifically — not a team meeting' },
+  { date:'2026-03-05', org_id:'elevator', person:'Nicky Bullard', type:'Intro Call', owner:'Jade', notes:'Warm intro via mutual contact. Nicky interested in the publisher-heritage angle.', next_step:'Arrange proper lunch with Coris + Jade together' },
+];
+
+const BRIEFS = [
+  { date:'2026-04-10', brand:'McCormick / Schwartz', via:'ingenuity', type:'Social Strategy + Content', value:180000, stage:'Longlist', outcome:'', notes:'MAD//Meets follow-up. Focused on social-first seasonal campaign.' },
+  { date:'2026-04-05', brand:'Wagamama', via:'ingenuity', type:'Influencer + Content', value:220000, stage:'Shortlist', outcome:'', notes:'Strong brief. Good fit for Jungle\'s food & lifestyle content expertise.' },
+  { date:'2026-03-22', brand:'Berkeley Group', via:'aar', type:'Content Strategy', value:350000, stage:'Pitch Sent', outcome:'', notes:'Property sector. Not traditional Jungle territory but strong creative angle.' },
+  { date:'2026-02-15', brand:'Anytime Fitness', via:'ingenuity', type:'Social-First Campaign', value:120000, stage:'Closed', outcome:'Won', notes:'Clean win. Jungle\'s fitness content heritage was decisive.' },
+];
+
+const EDITORIAL = [
+  { date:'2026-04-02', publication:'Creativebrief / Bite', type:'Thought Leadership', title:'Why social maturity is the new brand metric', commercial_movement:'2 inbound enquiries', meetings_booked:1 },
+  { date:'2026-03-18', publication:'The GO Network', type:'Agency Profile', title:'Jungle Creations agency spotlight', commercial_movement:'None tracked yet', meetings_booked:0 },
+  { date:'2026-02-28', publication:'The Drum', type:'Opinion', title:'Death of vanity metrics in social', commercial_movement:'1 intermediary follow-up', meetings_booked:1 },
+];
+
+const EVENTS = [
+  { date:'2026-04-14', name:'MAD//Meets (April)', host:'MAD//Fest', type:'Industry Networking', attended:true, meetings_set:3, opportunities_opened:1, followup_sent:false },
+  { date:'2026-03-28', name:'Observatory Brand Futures Roundtable', host:'Observatory International', type:'Roundtable', attended:true, meetings_set:1, opportunities_opened:0, followup_sent:true },
+  { date:'2026-03-14', name:'MAD//Meets (March)', host:'MAD//Fest', type:'Industry Networking', attended:true, meetings_set:4, opportunities_opened:2, followup_sent:true },
+  { date:'2026-05-15', name:'Oystercatchers Club Dinner', host:'Oystercatchers', type:'Dinner', attended:false, meetings_set:0, opportunities_opened:0, followup_sent:false },
+  { date:'2026-06-10', name:'Creativebrief Diversity Summit', host:'Creativebrief', type:'Conference', attended:false, meetings_set:0, opportunities_opened:0, followup_sent:false },
+];
+
+const WIN_LOSS = [
+  { pitch:'Anytime Fitness Social Campaign', brand:'Anytime Fitness', via:'ingenuity', date:'2026-02-15', value:120000, outcome:'Won', loss_reason:'', learnings:'Fitness content heritage was the deciding factor. Lead with it more.' },
+  { pitch:'FMCG Brand Social Strategy', brand:'Confidential', via:'aar', date:'2026-01-20', value:200000, outcome:'Lost', loss_reason:'Case studies not relevant enough', learnings:'Need FMCG-specific case studies. Gap in credentials.' },
+  { pitch:'Retail Content Production', brand:'Confidential', via:'creativebrief', date:'2026-01-08', value:95000, outcome:'Lost', loss_reason:'Pricing', learnings:'Pricing was 30% above competitors. Consider rate structure for smaller briefs.' },
+];
+
+const PEOPLE = [
+  { org_id:'aar', name:'Helen Catterall', title:'MD', role:'Decision maker', warmth:'warm', influence:'high', notes:'Strong relationship with Jade historically. Responds well to commercial focus.' },
+  { org_id:'aar', name:'James Brightly', title:'Senior Consultant', role:'Longlist builder', warmth:'neutral', influence:'high', notes:'The person who actually constructs longlists. Priority to get in front of.' },
+  { org_id:'aar', name:'Priya Shah', title:'Consultant', role:'Sector specialist', warmth:'cold', influence:'medium', notes:'Handles FMCG briefs. Doesn\'t know Jungle yet. Need an intro.' },
+  { org_id:'ingenuity', name:'Chris Dodd', title:'Director', role:'Decision maker', warmth:'warm', influence:'high', notes:'Met at MAD//Meets. Good first impression. Follow through quickly.' },
+  { org_id:'ingenuity', name:'Laura Bennett', title:'Senior Consultant', role:'Longlist builder', warmth:'neutral', influence:'high', notes:'Not yet met. Chris\'s right hand on digital briefs.' },
+  { org_id:'creativebrief', name:'Ruth Mortimer', title:'Editor', role:'Editorial lead', warmth:'warm', influence:'high', notes:'Editorial + commercial. Strong advocate for Jungle\'s POV content.' },
+  { org_id:'creativebrief', name:'Dan Mines', title:'Head of New Business', role:'Commercial lead', warmth:'warm', influence:'high', notes:'Key commercial contact. Quarterly check-ins on brief pipeline.' },
+  { org_id:'oystercatchers', name:'Sarah Golding', title:'CEO', role:'Decision maker', warmth:'neutral', influence:'high', notes:'High-profile. Relationship needs deepening — move from known to trusted.' },
+  { org_id:'oystercatchers', name:'Mark Evans', title:'Consultant', role:'Longlist builder', warmth:'cold', influence:'medium', notes:'Handles social and content briefs. Doesn\'t know Jungle specifically.' },
+  { org_id:'observatory', name:'Tom Darby', title:'Director', role:'Longlist builder', warmth:'warm', influence:'high', notes:'Met at their roundtable. Good connection. Keep up regular contact.' },
+  { org_id:'tuffon', name:'Caroline Hall', title:'Founder', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Ex-agency leader. Respected. Needs a proper sit-down — not email.' },
+  { org_id:'elevator', name:'Nicky Bullard', title:'Founder', role:'Decision maker', warmth:'warm', influence:'high', notes:'Highly influential independently. Warm to Jungle\'s publisher angle. Move quickly.' },
+  { org_id:'masterclassing', name:'James Fenwick', title:'Programme Director', role:'Programme lead', warmth:'warm', influence:'medium', notes:'Confirmed speaking slot. Speaking = visibility with their client audience.' },
+  { org_id:'gonetwork', name:'Sarah Miles', title:'Head of Members', role:'Account manager', warmth:'neutral', influence:'low', notes:'Day-to-day contact. Useful but not decision maker.' },
+];
+
+const BLOCKERS = [
+  { org_id:'aar', person:'Priya Shah', blocker:'Jungle not on radar for FMCG briefs — no relevant case studies presented', action:'Build FMCG-specific case study page and target Priya specifically', status:'In progress' },
+  { org_id:'oystercatchers', person:'Mark Evans', blocker:'Unclear what Jungle does vs a standard content agency', action:'Send the Audience Intelligence positioning piece with specific examples', status:'Not started' },
+  { org_id:'aar', person:'General', blocker:'Lost a brief on pricing — perceived as premium without premium proof', action:'Develop value articulation section in creds. Case study ROI data.', status:'In progress' },
+];
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function fmt(n){ if(!n) return '—'; return '£'+Math.round(n).toLocaleString('en-GB'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getOrg(id){ return INTERMEDIARIES.find(x=>x.id===id)||{name:id}; }
+function daysSince(d){ if(!d) return 999; return Math.floor((Date.now()-new Date(d))/(1000*60*60*24)); }
+
+function strengthHtml(n, max=5) {
+  let dots = '';
+  for(let i=1;i<=max;i++){
+    const cls = i<=n ? (n<=2?'filled cold':n===3?'filled weak':'filled') : '';
+    dots += `<div class="strength-dot ${cls}"></div>`;
+  }
+  return `<div class="strength-bar">${dots}</div>`;
+}
+
+function tierPill(t){ const map={1:'pill-black',2:'pill-blue',3:'pill-grey'}; return `<span class="pill ${map[t]||'pill-grey'}">Tier ${t}</span>`; }
+function statusPill(s){ const map={'Active':'pill-green','Warm':'pill-amber','Early':'pill-grey','Paused':'pill-red'}; return `<span class="pill ${map[s]||'pill-grey'}">${esc(s)}</span>`; }
+function warmthPill(w){ const map={'warm':'pill-green','neutral':'pill-amber','cold':'pill-red'}; return `<span class="pill ${map[w]||'pill-grey'}">${esc(w)}</span>`; }
+function outcomePill(o){ const map={'Won':'pill-green','Lost':'pill-red','In Progress':'pill-amber'}; return `<span class="pill ${map[o]||'pill-grey'}">${esc(o||'In Progress')}</span>`; }
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+  const renders = {overview:renderOverview, dashboard:renderDashboard, tracking:renderTracking, people:renderPeople, roi:renderROI};
+  if(renders[id]) renders[id]();
+}
+
+function switchTrackTab(id, btn) {
+  document.querySelectorAll('#view-tracking .sub-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#view-tracking .sub-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('track-'+id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+// OVERVIEW
+// ═══════════════════════════════════════════════
+function renderOverview() {
+  const conv = 0.3;
+  const totalProjected = INTERMEDIARIES.reduce((s,i)=>s+Math.round(i.pitches_expected*i.avg_value*conv),0);
+  const totalFees = INTERMEDIARIES.filter(i=>i.paid).reduce((s,i)=>s+i.fee,0);
+  const paidCount = INTERMEDIARIES.filter(i=>i.paid).length;
+  const warmOrActive = INTERMEDIARIES.filter(i=>i.rel_strength>=3).length;
+
+  document.getElementById('overview-stats').innerHTML = [
+    {label:'Intermediaries tracked',value:INTERMEDIARIES.length,sub:`${paidCount} paid, ${INTERMEDIARIES.length-paidCount} unpaid`},
+    {label:'Projected pipeline',value:fmt(totalProjected),sub:'At 30% conversion',cls:'green'},
+    {label:'Total annual fees',value:fmt(totalFees),sub:'Paid partnerships only'},
+    {label:'Strong relationships',value:warmOrActive+' / '+INTERMEDIARIES.length,sub:'Strength score 3+',cls:'amber'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+
+  document.getElementById('overview-int-grid').innerHTML = INTERMEDIARIES.map(i=>`
+    <div class="int-card" onclick="goToInt('${i.id}')">
+      <div class="flex-between">
+        <div class="int-card-name">${esc(i.name)}</div>
+        ${i.paid ? '<span class="pill pill-black">Paid</span>' : '<span class="pill pill-grey">Unpaid</span>'}
+      </div>
+      <div class="int-card-type">${tierPill(i.tier)} ${statusPill(i.status)}</div>
+      <div class="int-card-row">
+        <div class="int-card-meta">Pitches expected: <strong>${i.pitches_expected}</strong></div>
+        ${strengthHtml(i.rel_strength)}
+      </div>
+      <div class="int-card-footer">
+        <div class="int-next"><strong>Next:</strong> ${esc(i.next_action)}</div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:${daysSince(i.last_touchpoint)>30?'var(--red)':'var(--grey-mid)'}">${daysSince(i.last_touchpoint)}d ago</div>
+      </div>
+    </div>`).join('');
+
+  const recent = [...TOUCHPOINTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6);
+  document.getElementById('overview-touchpoints').innerHTML = recent.map(t=>`<tr>
+    <td class="mono" style="font-size:11px">${t.date}</td>
+    <td style="font-weight:600">${esc(getOrg(t.org_id).name)}</td>
+    <td>${esc(t.person)}</td>
+    <td><span class="pill pill-blue">${esc(t.type)}</span></td>
+    <td style="font-size:11px;color:var(--grey-mid)">${esc(t.notes)}</td>
+    <td style="font-size:11px">${esc(t.next_step)}</td>
+  </tr>`).join('');
+}
+
+function goToInt(id) {
+  // In future: open detail page. For now: go to people map filtered
+  document.querySelectorAll('.nav-tab')[4].click();
+  setTimeout(()=>{
+    const btn = document.querySelector(`[data-org="${id}"]`);
+    if(btn) btn.click();
+  },100);
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const conv = (parseFloat(document.getElementById('conv-rate')?.value)||30)/100;
+  let totalFees=0, totalPitches=0, totalProjected=0;
+
+  document.getElementById('pipeline-body').innerHTML = INTERMEDIARIES.map(i=>{
+    const proj = Math.round(i.pitches_expected * i.avg_value * conv);
+    if(i.paid) totalFees += i.fee;
+    totalPitches += i.pitches_expected;
+    totalProjected += proj;
+    return `<tr>
+      <td style="font-weight:600">${esc(i.name)}</td>
+      <td>${tierPill(i.tier)}</td>
+      <td>${statusPill(i.status)}</td>
+      <td class="right">${i.paid ? fmt(i.fee) : '<span class="muted">Unpaid</span>'}</td>
+      <td class="right mono">${i.pitches_expected}</td>
+      <td class="right">${fmt(i.avg_value)}</td>
+      <td class="right" style="font-weight:700;color:var(--green-dim)">${fmt(proj)}</td>
+      <td class="right">${strengthHtml(i.rel_strength)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pipeline-foot').innerHTML = `<tr>
+    <td colspan="3">Totals</td>
+    <td class="right">${fmt(totalFees)}</td>
+    <td class="right mono">${totalPitches}</td>
+    <td class="right">—</td>
+    <td class="right">${fmt(totalProjected)}</td>
+    <td></td>
+  </tr>`;
+
+  // Stats
+  const briefs = BRIEFS.length;
+  const won = WIN_LOSS.filter(x=>x.outcome==='Won').length;
+  const touchpointsThisQ = TOUCHPOINTS.filter(t=>new Date(t.date)>new Date('2026-01-01')).length;
+  document.getElementById('dash-stats').innerHTML = [
+    {label:'Projected pipeline',value:fmt(totalProjected),sub:'At '+Math.round(conv*100)+'% conversion',cls:'green'},
+    {label:'Total fees invested',value:fmt(totalFees),sub:'Paid partners only'},
+    {label:'Briefs received (YTD)',value:briefs,sub:`${won} won so far`},
+    {label:'Touchpoints this quarter',value:touchpointsThisQ,sub:'Target: 12+ / month'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+
+  // Activity cards
+  const byType = TOUCHPOINTS.reduce((acc,t)=>{ acc[t.type]=(acc[t.type]||0)+1; return acc; },{});
+  document.getElementById('activity-cards').innerHTML = Object.entries(byType).map(([type,count])=>`
+    <div class="stat-card"><div class="stat-label">${type}</div><div class="stat-value">${count}</div><div class="stat-sub">touchpoints total</div></div>`).join('');
+
+  // Dormant (>30 days)
+  const dormant = INTERMEDIARIES.filter(i=>daysSince(i.last_touchpoint)>30).sort((a,b)=>daysSince(b.last_touchpoint)-daysSince(a.last_touchpoint));
+  document.getElementById('dormant-body').innerHTML = dormant.length
+    ? dormant.map(i=>`<tr>
+        <td style="font-weight:600">${esc(i.name)}</td>
+        <td class="mono" style="font-size:11px">${i.last_touchpoint||'Never'}</td>
+        <td style="color:var(--red);font-weight:700;font-family:'DM Mono',monospace">${daysSince(i.last_touchpoint)}d</td>
+        <td style="font-size:12px">${esc(i.next_action)}</td>
+        <td>${esc(i.owner)}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="5" class="empty">No dormant relationships — well done.</td></tr>`;
+}
+
+// ═══════════════════════════════════════════════
+// TRACKING
+// ═══════════════════════════════════════════════
+function renderTracking() {
+  document.getElementById('tp-body').innerHTML = [...TOUCHPOINTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`<tr>
+    <td class="mono" style="font-size:11px">${t.date}</td>
+    <td style="font-weight:600">${esc(getOrg(t.org_id).name)}</td>
+    <td>${esc(t.person)}</td>
+    <td><span class="pill pill-blue">${esc(t.type)}</span></td>
+    <td>${esc(t.owner)}</td>
+    <td style="font-size:11px;color:#444">${esc(t.notes)}</td>
+    <td style="font-size:11px">${esc(t.next_step)}</td>
+  </tr>`).join('');
+
+  document.getElementById('briefs-body').innerHTML = [...BRIEFS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(b=>`<tr>
+    <td class="mono" style="font-size:11px">${b.date}</td>
+    <td style="font-weight:600">${esc(b.brand)}</td>
+    <td>${esc(getOrg(b.via).name)}</td>
+    <td style="font-size:11px">${esc(b.type)}</td>
+    <td class="right">${fmt(b.value)}</td>
+    <td><span class="pill pill-amber">${esc(b.stage)}</span></td>
+    <td>${b.outcome ? outcomePill(b.outcome) : '—'}</td>
+    <td style="font-size:11px;color:#444">${esc(b.notes)}</td>
+  </tr>`).join('');
+
+  document.getElementById('editorial-body').innerHTML = EDITORIAL.map(e=>`<tr>
+    <td class="mono" style="font-size:11px">${e.date}</td>
+    <td style="font-weight:600">${esc(e.publication)}</td>
+    <td><span class="pill pill-blue">${esc(e.type)}</span></td>
+    <td>${esc(e.title)}</td>
+    <td style="font-size:11px">${esc(e.commercial_movement)}</td>
+    <td class="right mono">${e.meetings_booked}</td>
+  </tr>`).join('');
+
+  document.getElementById('events-body').innerHTML = [...EVENTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr>
+    <td class="mono" style="font-size:11px">${e.date}</td>
+    <td style="font-weight:600">${esc(e.name)}</td>
+    <td>${esc(e.host)}</td>
+    <td><span class="pill pill-grey">${esc(e.type)}</span></td>
+    <td>${e.attended ? '<span class="pill pill-green">Yes</span>' : '<span class="pill pill-grey">Planned</span>'}</td>
+    <td class="right mono">${e.meetings_set}</td>
+    <td class="right mono">${e.opportunities_opened}</td>
+    <td>${e.followup_sent ? '<span class="pill pill-green">Sent</span>' : '<span class="pill pill-red">Pending</span>'}</td>
+  </tr>`).join('');
+
+  document.getElementById('opps-body').innerHTML = WIN_LOSS.map(o=>`<tr>
+    <td style="font-weight:600">${esc(o.pitch)}</td>
+    <td>${esc(o.brand)}</td>
+    <td>${esc(getOrg(o.via).name)}</td>
+    <td class="mono" style="font-size:11px">${o.date}</td>
+    <td class="right">${fmt(o.value)}</td>
+    <td>${outcomePill(o.outcome)}</td>
+    <td style="font-size:11px;color:var(--red)">${esc(o.loss_reason)}</td>
+    <td style="font-size:11px;color:#444">${esc(o.learnings)}</td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// PEOPLE MAP
+// ═══════════════════════════════════════════════
+let activePeopleFilter = null;
+
+function renderPeople() {
+  const btns = document.getElementById('people-filter-btns');
+  btns.innerHTML = `<button class="pill ${!activePeopleFilter?'pill-black':'pill-grey'}" style="cursor:pointer;border:none" onclick="filterPeople(null)">All</button>` +
+    INTERMEDIARIES.map(i=>`<button class="pill ${activePeopleFilter===i.id?'pill-black':'pill-grey'}" data-org="${i.id}" style="cursor:pointer;border:none" onclick="filterPeople('${i.id}')">${esc(i.name)}</button>`).join('');
+
+  const orgs = activePeopleFilter ? INTERMEDIARIES.filter(i=>i.id===activePeopleFilter) : INTERMEDIARIES;
+  const sections = document.getElementById('people-sections');
+  sections.innerHTML = orgs.map(org=>{
+    const people = PEOPLE.filter(p=>p.org_id===org.id);
+    if(!people.length) return '';
+    return `<div style="margin-bottom:36px">
+      <div class="flex-between" style="margin-bottom:14px">
+        <div>
+          <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">${esc(org.name)}</div>
+          <div style="font-size:11px;color:var(--grey-mid);margin-top:2px">${tierPill(org.tier)} ${org.paid?'<span class="pill pill-black">Paid</span>':'<span class="pill pill-grey">Unpaid</span>'}</div>
+        </div>
+        ${strengthHtml(org.rel_strength)}
+      </div>
+      <div class="people-grid">
+        ${people.map(p=>`<div class="person-card">
+          <div class="person-name">${esc(p.name)}</div>
+          <div class="person-title">${esc(p.title)}</div>
+          <div class="person-meta">
+            ${warmthPill(p.warmth)}
+            <span class="pill ${p.influence==='high'?'pill-black':p.influence==='medium'?'pill-amber':'pill-grey'}">${p.influence} influence</span>
+          </div>
+          <div style="font-size:11px;color:#555;margin-top:10px;line-height:1.5">${esc(p.notes)}</div>
+          <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.08em">${esc(p.role)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterPeople(id) {
+  activePeopleFilter = id;
+  renderPeople();
+}
+
+// ═══════════════════════════════════════════════
+// ROI
+// ═══════════════════════════════════════════════
+function renderROI() {
+  let totalFees=0, totalBriefs=0, totalPitches=0, totalWins=0, totalRevenue=0;
+
+  document.getElementById('roi-body').innerHTML = INTERMEDIARIES.map(i=>{
+    const briefs = BRIEFS.filter(b=>b.via===i.id).length;
+    const pitches = WIN_LOSS.filter(w=>w.via===i.id).length;
+    const wins = WIN_LOSS.filter(w=>w.via===i.id&&w.outcome==='Won').length;
+    const rev = WIN_LOSS.filter(w=>w.via===i.id&&w.outcome==='Won').reduce((s,w)=>s+w.value,0);
+    const costPerBrief = briefs && i.fee ? Math.round(i.fee/briefs) : null;
+    const costPerWin = wins && i.fee ? Math.round(i.fee/wins) : null;
+    const roi = i.fee && rev ? ((rev-i.fee)/i.fee*100).toFixed(0)+'%' : rev ? '∞' : '—';
+
+    if(i.paid) totalFees += i.fee;
+    totalBriefs += briefs; totalPitches += pitches; totalWins += wins; totalRevenue += rev;
+
+    const verdict = !i.paid ? '<span class="pill pill-grey">Unpaid</span>' :
+      (rev > i.fee*3) ? '<span class="pill pill-green">Strong ROI</span>' :
+      (rev > 0) ? '<span class="pill pill-amber">Developing</span>' :
+      '<span class="pill pill-red">Needs review</span>';
+
+    return `<tr>
+      <td style="font-weight:600">${esc(i.name)}</td>
+      <td>${i.paid?'<span class="pill pill-black">Yes</span>':'<span class="pill pill-grey">No</span>'}</td>
+      <td class="right">${i.paid ? fmt(i.fee) : '—'}</td>
+      <td class="right mono">${briefs||'—'}</td>
+      <td class="right mono">${pitches||'—'}</td>
+      <td class="right mono">${wins||'—'}</td>
+      <td class="right" style="color:var(--green-dim);font-weight:700">${rev ? fmt(rev) : '—'}</td>
+      <td class="right">${costPerBrief ? fmt(costPerBrief) : '—'}</td>
+      <td class="right">${costPerWin ? fmt(costPerWin) : '—'}</td>
+      <td class="right mono" style="font-weight:700">${roi}</td>
+      <td>${verdict}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('roi-foot').innerHTML = `<tr>
+    <td colspan="2">Totals</td>
+    <td class="right">${fmt(totalFees)}</td>
+    <td class="right mono">${totalBriefs}</td>
+    <td class="right mono">${totalPitches}</td>
+    <td class="right mono">${totalWins}</td>
+    <td class="right">${fmt(totalRevenue)}</td>
+    <td class="right">${totalBriefs&&totalFees?fmt(Math.round(totalFees/totalBriefs)):'—'}</td>
+    <td class="right">${totalWins&&totalFees?fmt(Math.round(totalFees/totalWins)):'—'}</td>
+    <td class="right mono">${totalFees&&totalRevenue?((totalRevenue-totalFees)/totalFees*100).toFixed(0)+'%':'—'}</td>
+    <td></td>
+  </tr>`;
+
+  const avgBriefVal = BRIEFS.length ? Math.round(BRIEFS.reduce((s,b)=>s+b.value,0)/BRIEFS.length) : 0;
+  const winRate = WIN_LOSS.length ? Math.round(WIN_LOSS.filter(w=>w.outcome==='Won').length/WIN_LOSS.length*100) : 0;
+  document.getElementById('roi-benchmarks').innerHTML = [
+    {label:'Avg brief value',value:fmt(avgBriefVal),sub:'Across all received briefs'},
+    {label:'Win rate',value:winRate+'%',sub:'All intermediary-sourced pitches',cls:winRate>=30?'green':'amber'},
+    {label:'Revenue per £1 invested',value:totalFees?'£'+(totalRevenue/totalFees).toFixed(2):'—',sub:'Paid partners only',cls:'green'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+
+  document.getElementById('blockers-body').innerHTML = BLOCKERS.map(b=>`<tr>
+    <td style="font-weight:600">${esc(getOrg(b.org_id).name)}</td>
+    <td>${esc(b.person)}</td>
+    <td style="font-size:12px;color:var(--red)">${esc(b.blocker)}</td>
+    <td style="font-size:12px">${esc(b.action)}</td>
+    <td><span class="pill ${b.status==='In progress'?'pill-amber':'pill-grey'}">${esc(b.status)}</span></td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+renderOverview();
+</script>
+</body>
+</html>
