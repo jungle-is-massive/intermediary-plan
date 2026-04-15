@@ -759,6 +759,13 @@ function showView(id, btn) {
   if(renders[id]) renders[id]();
 }
 
+function switchPlanTab(id, btn) {
+  document.querySelectorAll('#view-plan .vtab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#view-plan .vtab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('plan-' + id).classList.add('active');
+}
+
 function switchTrackTab(id, btn) {
   document.querySelectorAll('#view-tracking .sub-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('#view-tracking .sub-panel').forEach(p=>p.classList.remove('active'));
