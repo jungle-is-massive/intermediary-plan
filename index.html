@@ -137,15 +137,33 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
 .person-meta { display: flex; align-items: center; justify-content: space-between; }
 
 /* ── PLAN SECTIONS ── */
-.plan-block { background: var(--white); border: 1.5px solid var(--border); border-radius: 14px; padding: 28px 30px; margin-bottom: 16px; }
-.plan-block-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-mid); margin-bottom: 10px; }
-.plan-block-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; }
-.plan-block p { font-size: 13px; color: #444; line-height: 1.7; margin-bottom: 12px; }
-.plan-block p:last-child { margin-bottom: 0; }
-.plan-block ul { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
-.plan-block ul li { font-size: 13px; color: #444; padding-left: 18px; position: relative; line-height: 1.6; }
-.plan-block ul li::before { content: '→'; position: absolute; left: 0; color: var(--green-dim); font-weight: 700; font-size: 11px; top: 2px; }
 .plan-callout { background: rgba(139,255,87,0.08); border: 1.5px solid rgba(139,255,87,0.3); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 13px; font-weight: 600; color: var(--black); line-height: 1.6; }
+
+/* ── VERTICAL TABS (Plan) ── */
+.vtab-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; background: var(--white); border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; min-height: 500px; }
+.vtab-sidebar { background: var(--grey-light); border-right: 1.5px solid var(--border); display: flex; flex-direction: column; padding: 8px 0; }
+.vtab-btn { background: none; border: none; text-align: left; padding: 13px 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.12s; display: flex; flex-direction: column; gap: 3px; border-left: 3px solid transparent; }
+.vtab-btn:hover { background: rgba(0,0,0,0.04); }
+.vtab-btn.active { background: var(--white); border-left-color: var(--green-dim); }
+.vtab-btn-num { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey-mid); letter-spacing: 0.08em; }
+.vtab-btn-label { font-size: 12px; font-weight: 600; color: var(--black); line-height: 1.3; }
+.vtab-btn.active .vtab-btn-num { color: var(--green-dim); }
+.vtab-content { padding: 36px 40px; overflow-y: auto; }
+.vtab-panel { display: none; }
+.vtab-panel.active { display: block; }
+.vtab-panel-num { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-mid); margin-bottom: 8px; }
+.vtab-panel-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 18px; color: var(--black); }
+.vtab-panel p { font-size: 13px; color: #444; line-height: 1.75; margin-bottom: 14px; }
+.vtab-panel p:last-child { margin-bottom: 0; }
+.vtab-panel ul { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-top: 8px; }
+.vtab-panel ul li { font-size: 13px; color: #444; padding-left: 20px; position: relative; line-height: 1.6; }
+.vtab-panel ul li::before { content: '→'; position: absolute; left: 0; color: var(--green-dim); font-weight: 700; font-size: 11px; top: 3px; }
+@media (max-width: 720px) {
+  .vtab-layout { grid-template-columns: 1fr; }
+  .vtab-sidebar { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1.5px solid var(--border); padding: 0; }
+  .vtab-btn { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; padding: 12px 16px; }
+  .vtab-btn.active { border-bottom-color: var(--green-dim); border-left-color: transparent; background: var(--white); }
+}
 
 /* ── CADENCE GRID ── */
 .cadence-grid { display: grid; grid-template-columns: 140px 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; }
@@ -273,149 +291,184 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
      THE PLAN
 ════════════════════════════════════════════ -->
 <div class="view" id="view-plan">
-<div class="page-narrow">
+<div class="page">
   <div class="page-label">Strategy</div>
   <div class="page-title">The Plan</div>
   <div class="page-sub">What we're doing, why, and how. The operating manual for Jungle's intermediary programme.</div>
 
-  <div class="plan-block">
-    <div class="plan-block-label">01 · What this is</div>
-    <div class="plan-block-title">Building mental availability at the point of pitch creation.</div>
-    <p>A focused programme to make Jungle one of the first agencies intermediaries think of when a social, influencer or content brief lands.</p>
-    <p>Not brand awareness. Not relationship building for its own sake. Presence at the exact moment a consultant is constructing a longlist.</p>
-    <div class="plan-callout">If they don't instantly get you, you won't make the longlist. If they don't trust you commercially, you won't make the shortlist. This plan solves both.</div>
-  </div>
-
-  <div class="plan-block">
-    <div class="plan-block-label">02 · Why we're doing it</div>
-    <div class="plan-block-title">Because intermediaries control access to the pitches worth winning.</div>
-    <ul>
-      <li>They control access to high-value, structured pitches</li>
-      <li>They shortcut cold outreach — you're pre-validated before entering the room</li>
-      <li>A recommendation from an intermediary carries more weight than any credentials deck</li>
-      <li>Without an active programme, you're invisible at the moment that matters</li>
-    </ul>
-  </div>
-
-  <div class="plan-block">
-    <div class="plan-block-label">03 · What we hope to achieve</div>
-    <div class="plan-block-title">Consistent inclusion. Regular face time. A predictable pipeline contribution.</div>
-    <ul>
-      <li>Consistent inclusion in relevant longlists within 6 months</li>
-      <li>Regular face time with key consultants across all Tier 1 partners</li>
-      <li>Being recommended, not just considered — an unprompted mention to a brand</li>
-      <li>A measurable pipeline contribution from intermediary-sourced pitches</li>
-      <li>Jungle understood clearly in 10 seconds by every active consultant</li>
-    </ul>
-  </div>
-
-  <!-- KPIs -->
-  <div class="plan-block">
-    <div class="plan-block-label">04 · KPIs</div>
-    <div class="plan-block-title">Activity and outcome. Both are non-negotiable.</div>
-    <div class="kpi-grid mt16">
-      <div class="kpi-block">
-        <div class="kpi-block-title">Activity KPIs</div>
-        <div class="kpi-item"><span class="kpi-name">Intermediary meetings / month</span><span class="kpi-target">4+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Meaningful touchpoints / month</span><span class="kpi-target">12+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Events attended / hosted / quarter</span><span class="kpi-target">3+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Thought pieces sent / quarter</span><span class="kpi-target">4+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Senior contacts per intermediary</span><span class="kpi-target">2+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Orgs with active next action</span><span class="kpi-target">100%</span></div>
-      </div>
-      <div class="kpi-block">
-        <div class="kpi-block-title">Outcome KPIs</div>
-        <div class="kpi-item"><span class="kpi-name">Longlist inclusions / quarter</span><span class="kpi-target">3+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Shortlist conversions</span><span class="kpi-target">50%</span></div>
-        <div class="kpi-item"><span class="kpi-name">Pitches received / year</span><span class="kpi-target">8+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Win rate (intermediary-led)</span><span class="kpi-target">30%+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Revenue from int. pitches</span><span class="kpi-target">£500k+</span></div>
-        <div class="kpi-item"><span class="kpi-name">Editorial features / year</span><span class="kpi-target">6+</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cadence -->
-  <div class="plan-block">
-    <div class="plan-block-label">05 · Relationship cadence</div>
-    <div class="plan-block-title">Three phases. Then a repeating drum.</div>
-
-    <h4 style="margin-top:16px;margin-bottom:8px">Phase 1 — Initial intro</h4>
-    <p>Tight, tailored creds. Clear POV. Show where Jungle fits and — crucially — where it doesn't. Goal: <em>"I get it. They're different."</em></p>
-
-    <h4 style="margin-top:16px;margin-bottom:8px">Phase 2 — Build familiarity (months 1–3)</h4>
-    <div class="cadence-grid" style="margin-top:10px">
-      <div class="cadence-label">Month 1</div>
-      <div class="cadence-content">Intro meeting. Tailored creds. Agree best way to stay in touch.</div>
-      <div class="cadence-label">Month 1–2</div>
-      <div class="cadence-content">Send one sharp POV piece. Not a newsletter — something specific to them.</div>
-      <div class="cadence-label">Month 2</div>
-      <div class="cadence-content">Invite to something: event, breakfast, roundtable. Make it worth their time.</div>
-      <div class="cadence-label">Month 3</div>
-      <div class="cadence-content">Follow up with a relevant case study. Commercial results front and centre.</div>
+  <div class="vtab-layout">
+    <!-- Sidebar -->
+    <div class="vtab-sidebar">
+      <button class="vtab-btn active" onclick="switchPlanTab('what',this)">
+        <span class="vtab-btn-num">01</span>
+        <span class="vtab-btn-label">What this is</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('why',this)">
+        <span class="vtab-btn-num">02</span>
+        <span class="vtab-btn-label">Why we're doing it</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('achieve',this)">
+        <span class="vtab-btn-num">03</span>
+        <span class="vtab-btn-label">What we hope to achieve</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('kpis',this)">
+        <span class="vtab-btn-num">04</span>
+        <span class="vtab-btn-label">KPIs</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('cadence',this)">
+        <span class="vtab-btn-num">05</span>
+        <span class="vtab-btn-label">Relationship cadence</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('extras',this)">
+        <span class="vtab-btn-num">06</span>
+        <span class="vtab-btn-label">What else belongs here</span>
+      </button>
+      <button class="vtab-btn" onclick="switchPlanTab('tracks',this)">
+        <span class="vtab-btn-num">07</span>
+        <span class="vtab-btn-label">Two tracks</span>
+      </button>
     </div>
 
-    <h4 style="margin-top:24px;margin-bottom:8px">Phase 3 — Stay front of mind (ongoing)</h4>
-    <div class="cadence-grid" style="margin-top:10px">
-      <div class="cadence-label">Monthly</div>
-      <div class="cadence-content"><ul>
-        <li>One valuable piece: POV, data insight, or strong case study with commercial proof</li>
-        <li>LinkedIn engagement — thoughtful comments, not likes</li>
-      </ul></div>
-      <div class="cadence-label">Quarterly</div>
-      <div class="cadence-content"><ul>
-        <li>In-person: coffee, breakfast, or lunch</li>
-        <li>Invite to Jungle-hosted event or roundtable</li>
-        <li>Relationship strength review — is this moving?</li>
-      </ul></div>
-      <div class="cadence-label">Events</div>
-      <div class="cadence-content"><ul>
-        <li>Attend their roundtables and panels</li>
-        <li>Follow up within 48 hours with context, not just "great to see you"</li>
-        <li>Track yield: attended → meetings set → opportunities opened</li>
-      </ul></div>
-      <div class="cadence-label">Trigger-based</div>
-      <div class="cadence-content"><ul>
-        <li>Brand they work with announces something relevant</li>
-        <li>Pitch in market in Jungle's sweet spot</li>
-        <li>Key contact changes role</li>
-        <li>Jungle wins an award or lands a notable campaign</li>
-      </ul></div>
-    </div>
-    <div class="plan-callout" style="margin-top:16px">Never "check in." Always bring something useful, sharp, or relevant. Every touchpoint should justify itself.</div>
-  </div>
+    <!-- Content panels -->
+    <div class="vtab-content">
 
-  <!-- What else -->
-  <div class="plan-block">
-    <div class="plan-block-label">06 · What else belongs in this programme</div>
-    <div class="plan-block-title">The things most agencies miss.</div>
-    <ul>
-      <li><strong>Intermediary-specific creds deck</strong> — faster, clearer, outcomes over outputs. Makes their job easier.</li>
-      <li><strong>Defined right to win</strong> — be explicit about which briefs Jungle should and shouldn't be on. Trust-building shortcut.</li>
-      <li><strong>Thought leadership mapped to them</strong> — Social Maturity, Death of Vanity, Audience Intelligence fed consistently into intermediary conversations, not broadcast separately.</li>
-      <li><strong>Org mapping</strong> — know the MD, the consultants who build longlists, and the juniors who are rising. The mid-level people often make the call.</li>
-      <li><strong>Referral asks</strong> — at the right moment, ask a warm contact to recommend Jungle to a specific brand. Rare, high-value, must be planned.</li>
-      <li><strong>Internal alignment</strong> — everyone who meets intermediaries tells the same story, hits the same drumbeat, reinforces the same positioning. No freelancing.</li>
-      <li><strong>Credential refresh moments</strong> — new capability, key hire, significant result. Not every update — the signal ones only.</li>
-      <li><strong>Quarterly review loop</strong> — which intermediaries are driving pipeline, which aren't, where you're being blocked, what feedback you're getting. Then adjust.</li>
-    </ul>
-  </div>
+      <div class="vtab-panel active" id="plan-what">
+        <div class="vtab-panel-num">01 · What this is</div>
+        <div class="vtab-panel-title">Building mental availability at the point of pitch creation.</div>
+        <p>A focused programme to make Jungle one of the first agencies intermediaries think of when a social, influencer or content brief lands.</p>
+        <p>Not brand awareness. Not relationship building for its own sake. Presence at the exact moment a consultant is constructing a longlist.</p>
+        <div class="plan-callout">If they don't instantly get you, you won't make the longlist. If they don't trust you commercially, you won't make the shortlist. This plan solves both.</div>
+      </div>
 
-  <!-- Two tracks -->
-  <div class="plan-block">
-    <div class="plan-block-label">07 · Two tracks running simultaneously</div>
-    <div class="plan-block-title">Paid partners and unpaid relationships need different approaches.</div>
-    <div class="card-grid card-grid-2 mt16">
-      <div style="background:rgba(139,255,87,0.06);border:1.5px solid rgba(139,255,87,0.25);border-radius:12px;padding:18px 20px">
-        <h4 style="margin-bottom:8px">Track 1 — Paid roster partners</h4>
-        <p style="font-size:12px;color:#444;line-height:1.6">Formal, obligatory relationships. They <em>have</em> to know you. The risk is complacency — being on the roster doesn't mean getting called. Earn your place actively or you become shelf-ware.</p>
+      <div class="vtab-panel" id="plan-why">
+        <div class="vtab-panel-num">02 · Why we're doing it</div>
+        <div class="vtab-panel-title">Because intermediaries control access to the pitches worth winning.</div>
+        <ul>
+          <li>They control access to high-value, structured pitches</li>
+          <li>They shortcut cold outreach — you're pre-validated before entering the room</li>
+          <li>A recommendation from an intermediary carries more weight than any credentials deck</li>
+          <li>Without an active programme, you're invisible at the moment that matters</li>
+        </ul>
       </div>
-      <div style="background:rgba(74,144,217,0.06);border:1.5px solid rgba(74,144,217,0.2);border-radius:12px;padding:18px 20px">
-        <h4 style="margin-bottom:8px">Track 2 — Known but unpaid</h4>
-        <p style="font-size:12px;color:#444;line-height:1.6">No obligation on their side. The relationship has to earn its right to exist through genuine value exchange. Harder to sustain but often where unexpected opportunities come from.</p>
+
+      <div class="vtab-panel" id="plan-achieve">
+        <div class="vtab-panel-num">03 · What we hope to achieve</div>
+        <div class="vtab-panel-title">Consistent inclusion. Regular face time. A predictable pipeline contribution.</div>
+        <ul>
+          <li>Consistent inclusion in relevant longlists within 6 months</li>
+          <li>Regular face time with key consultants across all Tier 1 partners</li>
+          <li>Being recommended, not just considered — an unprompted mention to a brand</li>
+          <li>A measurable pipeline contribution from intermediary-sourced pitches</li>
+          <li>Jungle understood clearly in 10 seconds by every active consultant</li>
+        </ul>
       </div>
-    </div>
-  </div>
+
+      <div class="vtab-panel" id="plan-kpis">
+        <div class="vtab-panel-num">04 · KPIs</div>
+        <div class="vtab-panel-title">Activity and outcome. Both are non-negotiable.</div>
+        <div class="kpi-grid mt16">
+          <div class="kpi-block">
+            <div class="kpi-block-title">Activity KPIs</div>
+            <div class="kpi-item"><span class="kpi-name">Intermediary meetings / month</span><span class="kpi-target">4+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Meaningful touchpoints / month</span><span class="kpi-target">12+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Events attended / hosted / quarter</span><span class="kpi-target">3+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Thought pieces sent / quarter</span><span class="kpi-target">4+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Senior contacts per intermediary</span><span class="kpi-target">2+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Orgs with active next action</span><span class="kpi-target">100%</span></div>
+          </div>
+          <div class="kpi-block">
+            <div class="kpi-block-title">Outcome KPIs</div>
+            <div class="kpi-item"><span class="kpi-name">Longlist inclusions / quarter</span><span class="kpi-target">3+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Shortlist conversions</span><span class="kpi-target">50%</span></div>
+            <div class="kpi-item"><span class="kpi-name">Pitches received / year</span><span class="kpi-target">8+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Win rate (intermediary-led)</span><span class="kpi-target">30%+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Revenue from int. pitches</span><span class="kpi-target">£500k+</span></div>
+            <div class="kpi-item"><span class="kpi-name">Editorial features / year</span><span class="kpi-target">6+</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vtab-panel" id="plan-cadence">
+        <div class="vtab-panel-num">05 · Relationship cadence</div>
+        <div class="vtab-panel-title">Three phases. Then a repeating drum.</div>
+
+        <h4 style="margin-top:4px;margin-bottom:8px">Phase 1 — Initial intro</h4>
+        <p>Tight, tailored creds. Clear POV. Show where Jungle fits and — crucially — where it doesn't. Goal: <em>"I get it. They're different."</em></p>
+
+        <h4 style="margin-top:20px;margin-bottom:8px">Phase 2 — Build familiarity (months 1–3)</h4>
+        <div class="cadence-grid" style="margin-top:10px">
+          <div class="cadence-label">Month 1</div>
+          <div class="cadence-content">Intro meeting. Tailored creds. Agree best way to stay in touch.</div>
+          <div class="cadence-label">Month 1–2</div>
+          <div class="cadence-content">Send one sharp POV piece. Not a newsletter — something specific to them.</div>
+          <div class="cadence-label">Month 2</div>
+          <div class="cadence-content">Invite to something: event, breakfast, roundtable. Make it worth their time.</div>
+          <div class="cadence-label">Month 3</div>
+          <div class="cadence-content">Follow up with a relevant case study. Commercial results front and centre.</div>
+        </div>
+
+        <h4 style="margin-top:28px;margin-bottom:8px">Phase 3 — Stay front of mind (ongoing)</h4>
+        <div class="cadence-grid" style="margin-top:10px">
+          <div class="cadence-label">Monthly</div>
+          <div class="cadence-content"><ul>
+            <li>One valuable piece: POV, data insight, or strong case study with commercial proof</li>
+            <li>LinkedIn engagement — thoughtful comments, not likes</li>
+          </ul></div>
+          <div class="cadence-label">Quarterly</div>
+          <div class="cadence-content"><ul>
+            <li>In-person: coffee, breakfast, or lunch</li>
+            <li>Invite to Jungle-hosted event or roundtable</li>
+            <li>Relationship strength review — is this moving?</li>
+          </ul></div>
+          <div class="cadence-label">Events</div>
+          <div class="cadence-content"><ul>
+            <li>Attend their roundtables and panels</li>
+            <li>Follow up within 48 hours with context, not just "great to see you"</li>
+            <li>Track yield: attended → meetings set → opportunities opened</li>
+          </ul></div>
+          <div class="cadence-label">Trigger-based</div>
+          <div class="cadence-content"><ul>
+            <li>Brand they work with announces something relevant</li>
+            <li>Pitch in market in Jungle's sweet spot</li>
+            <li>Key contact changes role</li>
+            <li>Jungle wins an award or lands a notable campaign</li>
+          </ul></div>
+        </div>
+        <div class="plan-callout" style="margin-top:20px">Never "check in." Always bring something useful, sharp, or relevant. Every touchpoint should justify itself.</div>
+      </div>
+
+      <div class="vtab-panel" id="plan-extras">
+        <div class="vtab-panel-num">06 · What else belongs in this programme</div>
+        <div class="vtab-panel-title">The things most agencies miss.</div>
+        <ul>
+          <li><strong>Intermediary-specific creds deck</strong> — faster, clearer, outcomes over outputs. Makes their job easier.</li>
+          <li><strong>Defined right to win</strong> — be explicit about which briefs Jungle should and shouldn't be on. Trust-building shortcut.</li>
+          <li><strong>Thought leadership mapped to them</strong> — Social Maturity, Death of Vanity, Audience Intelligence fed consistently into intermediary conversations, not broadcast separately.</li>
+          <li><strong>Org mapping</strong> — know the MD, the consultants who build longlists, and the juniors who are rising. The mid-level people often make the call.</li>
+          <li><strong>Referral asks</strong> — at the right moment, ask a warm contact to recommend Jungle to a specific brand. Rare, high-value, must be planned.</li>
+          <li><strong>Internal alignment</strong> — everyone who meets intermediaries tells the same story, hits the same drumbeat, reinforces the same positioning. No freelancing.</li>
+          <li><strong>Credential refresh moments</strong> — new capability, key hire, significant result. Not every update — the signal ones only.</li>
+          <li><strong>Quarterly review loop</strong> — which intermediaries are driving pipeline, which aren't, where you're being blocked, what feedback you're getting. Then adjust.</li>
+        </ul>
+      </div>
+
+      <div class="vtab-panel" id="plan-tracks">
+        <div class="vtab-panel-num">07 · Two tracks running simultaneously</div>
+        <div class="vtab-panel-title">Paid partners and unpaid relationships need different approaches.</div>
+        <div class="card-grid card-grid-2 mt16">
+          <div style="background:rgba(139,255,87,0.06);border:1.5px solid rgba(139,255,87,0.25);border-radius:12px;padding:20px 22px">
+            <h4 style="margin-bottom:10px">Track 1 — Paid roster partners</h4>
+            <p style="font-size:13px;color:#444;line-height:1.65">Formal, obligatory relationships. They <em>have</em> to know you. The risk is complacency — being on the roster doesn't mean getting called. Earn your place actively or you become shelf-ware.</p>
+          </div>
+          <div style="background:rgba(74,144,217,0.06);border:1.5px solid rgba(74,144,217,0.2);border-radius:12px;padding:20px 22px">
+            <h4 style="margin-bottom:10px">Track 2 — Known but unpaid</h4>
+            <p style="font-size:13px;color:#444;line-height:1.65">No obligation on their side. The relationship has to earn its right to exist through genuine value exchange. Harder to sustain but often where unexpected opportunities come from.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /vtab-content -->
+  </div><!-- /vtab-layout -->
 </div>
 </div>
 
