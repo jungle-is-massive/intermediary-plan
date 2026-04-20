@@ -853,7 +853,7 @@ function renderDashboard() {
     totalPitches += i.pitches_expected;
     totalProjected += proj;
     return `<tr${i.isGroup ? ' style="background:rgba(139,255,87,0.04)"' : ''}>
-      <td style="font-weight:600">${esc(i.name)}${i.isGroup ? ' <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grey-mid);font-weight:400">(Nicky Bullard · Alex Young)</span>' : ''}</td>
+      <td style="font-weight:600">${esc(i.name)}${i.isGroup ? ' <span style="font-size:10px;color:var(--grey-mid);font-weight:400">(Nicky Bullard · Alex Young)</span>' : ''}</td>
       <td>${i.isGroup ? '<span class="pill pill-blue" style="font-size:10px">Group</span>' : tierPill(i.tier)}</td>
       <td>${statusPill(i.status)}</td>
       <td class="right">${i.isGroup ? '<span class="muted">—</span>' : (i.paid ? fmt(i.fee) : '<span class="muted">Unpaid</span>')}</td>
