@@ -1344,8 +1344,14 @@ document.addEventListener('keydown', (e) => {
 // INIT
 // ═══════════════════════════════════════════════
 (async () => {
+  // Render immediately with hardcoded data so the page isn't blank
+  renderOverview();
+  renderDashboard();
+
+  // Then load Supabase data and re-render views that depend on it
   await loadPeople();
-  // Re-render whichever view is active (Overview is the default)
+
+  // Re-render whichever view is active
   const activeView = document.querySelector('.view.active');
   if (activeView) {
     const viewId = activeView.id.replace('view-', '');
