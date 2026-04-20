@@ -275,11 +275,25 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
   <hr class="section-divider">
 
   <!-- Recent activity -->
-  <div class="section-title" style="margin-bottom:20px">Recent Touchpoints</div>
+  <div style="font-size:14px;font-weight:800;letter-spacing:-0.02em;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center">
+    Upcoming touchpoints
+    <button onclick="openTpModal()" style="background:var(--green);color:var(--black);border:none;padding:6px 14px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;cursor:pointer">+ Add</button>
+  </div>
+  <div class="table-wrap" style="margin-bottom:28px">
+    <table class="data-table">
+      <thead><tr>
+        <th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Owner</th><th>Next step</th><th style="width:60px"></th>
+      </tr></thead>
+      <tbody id="overview-upcoming"></tbody>
+    </table>
+  </div>
+  <div class="section-title" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+    <span>Recent touchpoints</span>
+  </div>
   <div class="table-wrap">
     <table class="data-table">
       <thead><tr>
-        <th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Notes</th><th>Next Step</th>
+        <th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Owner</th><th>Notes</th><th style="width:60px"></th>
       </tr></thead>
       <tbody id="overview-touchpoints"></tbody>
     </table>
@@ -485,7 +499,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
 
   <!-- Pipeline table -->
   <div class="section-header">
-    <div class="section-title">Pipeline by Intermediary</div>
+    <div class="section-title">Estimated Pipeline by Intermediary</div>
     <div style="font-size:12px;color:var(--grey-mid)">Conversion rate: <input id="conv-rate" type="number" min="1" max="100" value="30" style="width:52px;font-family:'DM Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:2px 6px;background:var(--white)" oninput="renderDashboard()">%</div>
   </div>
   <div class="table-wrap" style="margin-bottom:32px">
@@ -542,8 +556,9 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
     </div>
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Owner</th><th>Notes</th><th>Next Step</th></tr></thead>
+        <thead><tr><th>Date</th><th>Intermediary</th><th>Person</th><th>Type</th><th>Owner</th><th>Notes</th><th>Next Step</th><th style="width:60px"></th></tr></thead>
         <tbody id="tp-body"></tbody>
+      <tfoot><tr id="tp-add-row"></tr></tfoot>
       </table>
     </div>
   </div>
@@ -554,6 +569,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
       <table class="data-table">
         <thead><tr><th>Date Received</th><th>Brand</th><th>Via</th><th>Brief Type</th><th>Est. Value (£)</th><th>Stage</th><th>Outcome</th><th>Notes</th></tr></thead>
         <tbody id="briefs-body"></tbody>
+      <tfoot><tr id="briefs-add-row"></tr></tfoot>
       </table>
     </div>
   </div>
@@ -564,6 +580,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
       <table class="data-table">
         <thead><tr><th>Date</th><th>Publication</th><th>Feature Type</th><th>Title / Topic</th><th>Commercial Movement?</th><th>Meetings Booked</th></tr></thead>
         <tbody id="editorial-body"></tbody>
+      <tfoot><tr id="editorial-add-row"></tr></tfoot>
       </table>
     </div>
   </div>
@@ -574,6 +591,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
       <table class="data-table">
         <thead><tr><th>Date</th><th>Event</th><th>Host</th><th>Type</th><th>Jungle Attended?</th><th>Meetings Set</th><th>Opportunities Opened</th><th>Follow-up Sent</th></tr></thead>
         <tbody id="events-body"></tbody>
+      <tfoot><tr id="events-add-row"></tr></tfoot>
       </table>
     </div>
   </div>
@@ -584,6 +602,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
       <table class="data-table">
         <thead><tr><th>Pitch</th><th>Brand</th><th>Via</th><th>Date</th><th>Est. Value (£)</th><th>Outcome</th><th>Loss Reason</th><th>Learnings</th></tr></thead>
         <tbody id="opps-body"></tbody>
+      <tfoot><tr id="winloss-add-row"></tr></tfoot>
       </table>
     </div>
   </div>
@@ -672,71 +691,13 @@ const INTERMEDIARIES = [
   { id:'adassoc', name:'Advertising Association', tier:3, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:200000, rel_strength:1, last_touchpoint:'2026-02-14', next_action:'Identify right events to attend', owner:'Coris', notes:'Long-term play. Valuable for brand positioning.' },
 ];
 
-const TOUCHPOINTS = [
-  { date:'2026-04-08', org_id:'masterclassing', person:'James Fenwick', type:'Meeting', owner:'Coris', notes:'Confirmed September speaking slot for Social Maturity session.', next_step:'Draft session outline by end of April' },
-  { date:'2026-04-02', org_id:'creativebrief', person:'Ruth Mortimer', type:'Coffee', owner:'Coris', notes:'Discussed editorial calendar. Ruth keen on Audience Intelligence angle for Bite.', next_step:'Submit 400-word pitch for Bite feature by 15 April' },
-  { date:'2026-03-28', org_id:'aar', person:'Helen Catterall', type:'Intro Meeting', owner:'Coris', notes:'Strong first meeting. Helen engaged with social-first angle. Asked for commercial case studies.', next_step:'Send top 3 case studies with revenue impact data' },
-  { date:'2026-03-28', org_id:'observatory', person:'Tom Darby', type:'Event', owner:'Coris', notes:'Met at Observatory roundtable on brand purpose. Good conversation.', next_step:'Follow up with POV piece within 2 weeks' },
-  { date:'2026-03-20', org_id:'gonetwork', person:'Sarah Miles', type:'Email', owner:'Coris', notes:'Chased profile update. Sarah confirmed submission window open.', next_step:'Submit updated profile + 2 new case studies' },
-  { date:'2026-03-14', org_id:'ingenuity', person:'Chris Dodd', type:'Event', owner:'Jade', notes:'Met at MAD//Meets. Brief conversation. Follow-up interest expressed.', next_step:'Coris to send tailored deck within 1 week' },
-  { date:'2026-03-10', org_id:'oystercatchers', person:'Sarah Golding', type:'Intro Meeting', owner:'Jade', notes:'Initial registration meeting. Good but generic. Need to go deeper.', next_step:'Book coffee with Sarah specifically — not a team meeting' },
-  { date:'2026-03-05', org_id:'individual_consultants', person:'Nicky Bullard', type:'Intro Call', owner:'Jade', notes:'Warm intro via mutual contact. Nicky interested in the publisher-heritage angle.', next_step:'Arrange proper lunch with Coris + Jade together' },
-];
-
-const BRIEFS = [
-  { date:'2026-04-10', brand:'McCormick / Schwartz', via:'ingenuity', type:'Social Strategy + Content', value:180000, stage:'Longlist', outcome:'', notes:'MAD//Meets follow-up. Focused on social-first seasonal campaign.' },
-  { date:'2026-04-05', brand:'Wagamama', via:'ingenuity', type:'Influencer + Content', value:220000, stage:'Shortlist', outcome:'', notes:'Strong brief. Good fit for Jungle\'s food & lifestyle content expertise.' },
-  { date:'2026-03-22', brand:'Berkeley Group', via:'aar', type:'Content Strategy', value:350000, stage:'Pitch Sent', outcome:'', notes:'Property sector. Not traditional Jungle territory but strong creative angle.' },
-  { date:'2026-02-15', brand:'Anytime Fitness', via:'ingenuity', type:'Social-First Campaign', value:120000, stage:'Closed', outcome:'Won', notes:'Clean win. Jungle\'s fitness content heritage was decisive.' },
-];
-
-const EDITORIAL = [
-  { date:'2026-04-02', publication:'Creativebrief / Bite', type:'Thought Leadership', title:'Why social maturity is the new brand metric', commercial_movement:'2 inbound enquiries', meetings_booked:1 },
-  { date:'2026-03-18', publication:'The GO Network', type:'Agency Profile', title:'Jungle Creations agency spotlight', commercial_movement:'None tracked yet', meetings_booked:0 },
-  { date:'2026-02-28', publication:'The Drum', type:'Opinion', title:'Death of vanity metrics in social', commercial_movement:'1 intermediary follow-up', meetings_booked:1 },
-];
-
-const EVENTS = [
-  { date:'2026-04-14', name:'MAD//Meets (April)', host:'MAD//Fest', type:'Industry Networking', attended:true, meetings_set:3, opportunities_opened:1, followup_sent:false },
-  { date:'2026-03-28', name:'Observatory Brand Futures Roundtable', host:'Observatory International', type:'Roundtable', attended:true, meetings_set:1, opportunities_opened:0, followup_sent:true },
-  { date:'2026-03-14', name:'MAD//Meets (March)', host:'MAD//Fest', type:'Industry Networking', attended:true, meetings_set:4, opportunities_opened:2, followup_sent:true },
-  { date:'2026-05-15', name:'Oystercatchers Club Dinner', host:'Oystercatchers', type:'Dinner', attended:false, meetings_set:0, opportunities_opened:0, followup_sent:false },
-  { date:'2026-06-10', name:'Creativebrief Diversity Summit', host:'Creativebrief', type:'Conference', attended:false, meetings_set:0, opportunities_opened:0, followup_sent:false },
-];
-
-const WIN_LOSS = [
-  { pitch:'Anytime Fitness Social Campaign', brand:'Anytime Fitness', via:'ingenuity', date:'2026-02-15', value:120000, outcome:'Won', loss_reason:'', learnings:'Fitness content heritage was the deciding factor. Lead with it more.' },
-  { pitch:'FMCG Brand Social Strategy', brand:'Confidential', via:'aar', date:'2026-01-20', value:200000, outcome:'Lost', loss_reason:'Case studies not relevant enough', learnings:'Need FMCG-specific case studies. Gap in credentials.' },
-  { pitch:'Retail Content Production', brand:'Confidential', via:'creativebrief', date:'2026-01-08', value:95000, outcome:'Lost', loss_reason:'Pricing', learnings:'Pricing was 30% above competitors. Consider rate structure for smaller briefs.' },
-];
-
-// NOTE: PEOPLE is now hydrated from Supabase on page load.
-// The array below is used as a fallback if Supabase is unreachable
-// AND as the seed data for the initial Supabase table population.
-let PEOPLE = [
-  { org_id:'aar', name:'Helen Catterall', title:'MD', role:'Decision maker', warmth:'warm', influence:'high', notes:'Strong relationship with Jade historically. Responds well to commercial focus.' },
-  { org_id:'aar', name:'James Brightly', title:'Senior Consultant', role:'Longlist builder', warmth:'neutral', influence:'high', notes:'The person who actually constructs longlists. Priority to get in front of.' },
-  { org_id:'aar', name:'Priya Shah', title:'Consultant', role:'Sector specialist', warmth:'cold', influence:'medium', notes:'Handles FMCG briefs. Doesn\'t know Jungle yet. Need an intro.' },
-  { org_id:'ingenuity', name:'Chris Dodd', title:'Director', role:'Decision maker', warmth:'warm', influence:'high', notes:'Met at MAD//Meets. Good first impression. Follow through quickly.' },
-  { org_id:'ingenuity', name:'Laura Bennett', title:'Senior Consultant', role:'Longlist builder', warmth:'neutral', influence:'high', notes:'Not yet met. Chris\'s right hand on digital briefs.' },
-  { org_id:'creativebrief', name:'Ruth Mortimer', title:'Editor', role:'Editorial lead', warmth:'warm', influence:'high', notes:'Editorial + commercial. Strong advocate for Jungle\'s POV content.' },
-  { org_id:'creativebrief', name:'Dan Mines', title:'Head of New Business', role:'Commercial lead', warmth:'warm', influence:'high', notes:'Key commercial contact. Quarterly check-ins on brief pipeline.' },
-  { org_id:'oystercatchers', name:'Sarah Golding', title:'CEO', role:'Decision maker', warmth:'neutral', influence:'high', notes:'High-profile. Relationship needs deepening — move from known to trusted.' },
-  { org_id:'oystercatchers', name:'Mark Evans', title:'Consultant', role:'Longlist builder', warmth:'cold', influence:'medium', notes:'Handles social and content briefs. Doesn\'t know Jungle specifically.' },
-  { org_id:'observatory', name:'Tom Darby', title:'Director', role:'Longlist builder', warmth:'warm', influence:'high', notes:'Met at their roundtable. Good connection. Keep up regular contact.' },
-  { org_id:'tuffon', name:'Angus Crowther', title:'Founder', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Founder of Tuffon Hall Consultancy. Senior ex-agency leader.' },
-  { org_id:'individual_consultants', name:'Nicky Bullard', title:'Founder, Elevator', role:'Decision maker', warmth:'warm', influence:'high', notes:'Highly influential independently. Warm to Jungle\'s publisher angle. Move quickly.', website:'https://www.elevator-london.com' },
-  { org_id:'individual_consultants', name:'Alex Young', title:'Founder, Alex Young Consulting', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Independent pitch consultant. PR Agency Search and Pitch Consultancy.', website:'https://www.ay-co.uk' },
-  { org_id:'auditstar', name:'Caroline Lane', title:'Managing Director', role:'Decision maker', warmth:'neutral', influence:'high', notes:'MD of Auditstar. Agency search and pitch consultancy.' },
-  { org_id:'masterclassing', name:'James Fenwick', title:'Programme Director', role:'Programme lead', warmth:'warm', influence:'medium', notes:'Confirmed speaking slot. Speaking = visibility with their client audience.' },
-  { org_id:'gonetwork', name:'Sarah Miles', title:'Head of Members', role:'Account manager', warmth:'neutral', influence:'low', notes:'Day-to-day contact. Useful but not decision maker.' },
-];
-
-const BLOCKERS = [
-  { org_id:'aar', person:'Priya Shah', blocker:'Jungle not on radar for FMCG briefs — no relevant case studies presented', action:'Build FMCG-specific case study page and target Priya specifically', status:'In progress' },
-  { org_id:'oystercatchers', person:'Mark Evans', blocker:'Unclear what Jungle does vs a standard content agency', action:'Send the Audience Intelligence positioning piece with specific examples', status:'Not started' },
-  { org_id:'aar', person:'General', blocker:'Lost a brief on pricing — perceived as premium without premium proof', action:'Develop value articulation section in creds. Case study ROI data.', status:'In progress' },
-];
+// ── Live data — loaded from Supabase on init
+let TOUCHPOINTS = [];
+let BRIEFS = [];
+let EDITORIAL = [];
+let EVENTS = [];
+let WIN_LOSS = [];
+// Blockers moved to BD Planner Decisions board (strategic_decisions, category='intermediary')
 
 // ═══════════════════════════════════════════════
 // UTILS
@@ -820,15 +781,32 @@ function renderOverview() {
       </div>
     </div>`).join('');
 
-  const recent = [...TOUCHPOINTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6);
-  document.getElementById('overview-touchpoints').innerHTML = recent.map(t=>`<tr>
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = [...TOUCHPOINTS].filter(t=>new Date(t.date)>=today).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,6);
+  const recent   = [...TOUCHPOINTS].filter(t=>new Date(t.date)<today).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6);
+
+  const tpRowHtml = (t,isUpcoming) => `<tr>
     <td class="mono" style="font-size:11px">${t.date}</td>
     <td style="font-weight:600">${esc(getOrg(t.org_id).name)}</td>
-    <td>${esc(t.person)}</td>
-    <td><span class="pill pill-blue">${esc(t.type)}</span></td>
-    <td style="font-size:11px;color:var(--grey-mid)">${esc(t.notes)}</td>
-    <td style="font-size:11px">${esc(t.next_step)}</td>
-  </tr>`).join('');
+    <td>${esc(t.person||'')}</td>
+    <td><span class="pill pill-blue">${esc(t.type||'')}</span></td>
+    <td style="font-size:11px">${esc(t.owner||'')}</td>
+    <td style="font-size:11px;color:${isUpcoming?'#444':'var(--grey-mid)'}">
+      ${isUpcoming && t.next_step ? esc(t.next_step) : esc(t.notes||'')}
+    </td>
+    <td style="white-space:nowrap">
+      <button onclick="openTpModal('${t.id}')" style="background:transparent;border:1px solid var(--border);border-radius:5px;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);font-size:11px" title="Edit">✎</button>
+      <button onclick="deleteTp('${t.id}')" style="background:transparent;border:none;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);font-size:12px" title="Delete">✕</button>
+    </td>
+  </tr>`;
+
+  document.getElementById('overview-upcoming').innerHTML = upcoming.length
+    ? upcoming.map(t=>tpRowHtml(t,true)).join('')
+    : '<tr><td colspan="7" class="empty" style="padding:12px;color:var(--grey-mid)">No upcoming touchpoints — click + Add to schedule one.</td></tr>';
+
+  document.getElementById('overview-touchpoints').innerHTML = recent.length
+    ? recent.map(t=>tpRowHtml(t,false)).join('')
+    : '<tr><td colspan="7" class="empty" style="padding:12px;color:var(--grey-mid)">No recent touchpoints logged.</td></tr>';
 }
 
 function goToInt(id) {
@@ -905,58 +883,84 @@ function renderDashboard() {
 // ═══════════════════════════════════════════════
 // TRACKING
 // ═══════════════════════════════════════════════
+// ── CRUD helper ──────────────────────────────────────────────────────────────
+function editBtn(id, fn)  { return `<button onclick="${fn}('${id}')" style="background:transparent;border:1px solid var(--border);border-radius:5px;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);font-size:11px" title="Edit">✎</button>`; }
+function delBtn(id, fn)   { return `<button onclick="${fn}('${id}')" style="background:transparent;border:none;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);font-size:12px" title="Delete">✕</button>`; }
+function addBtnHtml(label, fn) { return `<button onclick="${fn}()" style="background:var(--green);color:var(--black);border:none;padding:6px 14px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;cursor:pointer;letter-spacing:-0.01em">+ ${label}</button>`; }
+
 function renderTracking() {
-  document.getElementById('tp-body').innerHTML = [...TOUCHPOINTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>`<tr>
+  // ── Touchpoints ──
+  const tpSorted = [...TOUCHPOINTS].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('tp-body').innerHTML = tpSorted.map(t=>`<tr>
     <td class="mono" style="font-size:11px">${t.date}</td>
     <td style="font-weight:600">${esc(getOrg(t.org_id).name)}</td>
-    <td>${esc(t.person)}</td>
-    <td><span class="pill pill-blue">${esc(t.type)}</span></td>
-    <td>${esc(t.owner)}</td>
-    <td style="font-size:11px;color:#444">${esc(t.notes)}</td>
-    <td style="font-size:11px">${esc(t.next_step)}</td>
-  </tr>`).join('');
+    <td>${esc(t.person||'')}</td>
+    <td><span class="pill pill-blue">${esc(t.type||'')}</span></td>
+    <td>${esc(t.owner||'')}</td>
+    <td style="font-size:11px;color:#444">${esc(t.notes||'')}</td>
+    <td style="font-size:11px">${esc(t.next_step||'')}</td>
+    <td style="white-space:nowrap">${editBtn(t.id,'openTpModal')}${delBtn(t.id,'deleteTp')}</td>
+  </tr>`).join('') || '<tr><td colspan="8" class="empty">No touchpoints yet.</td></tr>';
+  const tpAddRow = document.getElementById('tp-add-row');
+  if(tpAddRow) tpAddRow.innerHTML = `<td colspan="8" style="padding:8px 10px">${addBtnHtml('Add touchpoint','openTpModal')}</td>`;
 
+  // ── Briefs ──
   document.getElementById('briefs-body').innerHTML = [...BRIEFS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(b=>`<tr>
     <td class="mono" style="font-size:11px">${b.date}</td>
-    <td style="font-weight:600">${esc(b.brand)}</td>
+    <td style="font-weight:600">${esc(b.brand||'')}</td>
     <td>${esc(getOrg(b.via).name)}</td>
-    <td style="font-size:11px">${esc(b.type)}</td>
+    <td style="font-size:11px">${esc(b.type||'')}</td>
     <td class="right">${fmt(b.value)}</td>
-    <td><span class="pill pill-amber">${esc(b.stage)}</span></td>
+    <td><span class="pill pill-amber">${esc(b.stage||'')}</span></td>
     <td>${b.outcome ? outcomePill(b.outcome) : '—'}</td>
-    <td style="font-size:11px;color:#444">${esc(b.notes)}</td>
-  </tr>`).join('');
+    <td style="font-size:11px;color:#444">${esc(b.notes||'')}</td>
+    <td style="white-space:nowrap">${editBtn(b.id,'openBriefModal')}${delBtn(b.id,'deleteBrief')}</td>
+  </tr>`).join('') || '<tr><td colspan="9" class="empty">No briefs received yet.</td></tr>';
+  const bAddRow = document.getElementById('briefs-add-row');
+  if(bAddRow) bAddRow.innerHTML = `<td colspan="9" style="padding:8px 10px">${addBtnHtml('Add brief','openBriefModal')}</td>`;
 
-  document.getElementById('editorial-body').innerHTML = EDITORIAL.map(e=>`<tr>
+  // ── Editorial ──
+  document.getElementById('editorial-body').innerHTML = [...EDITORIAL].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr>
     <td class="mono" style="font-size:11px">${e.date}</td>
-    <td style="font-weight:600">${esc(e.publication)}</td>
-    <td><span class="pill pill-blue">${esc(e.type)}</span></td>
-    <td>${esc(e.title)}</td>
-    <td style="font-size:11px">${esc(e.commercial_movement)}</td>
-    <td class="right mono">${e.meetings_booked}</td>
-  </tr>`).join('');
+    <td style="font-weight:600">${esc(e.publication||'')}</td>
+    <td><span class="pill pill-blue">${esc(e.type||'')}</span></td>
+    <td>${esc(e.title||'')}</td>
+    <td style="font-size:11px">${esc(e.commercial_movement||'')}</td>
+    <td class="right mono">${e.meetings_booked||0}</td>
+    <td style="white-space:nowrap">${editBtn(e.id,'openEditorialModal')}${delBtn(e.id,'deleteEditorial')}</td>
+  </tr>`).join('') || '<tr><td colspan="7" class="empty">No editorial placed yet.</td></tr>';
+  const eAddRow = document.getElementById('editorial-add-row');
+  if(eAddRow) eAddRow.innerHTML = `<td colspan="7" style="padding:8px 10px">${addBtnHtml('Add editorial','openEditorialModal')}</td>`;
 
-  document.getElementById('events-body').innerHTML = [...EVENTS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr>
+  // ── Events ──
+  document.getElementById('events-body').innerHTML = [...EVENTS].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`<tr>
     <td class="mono" style="font-size:11px">${e.date}</td>
-    <td style="font-weight:600">${esc(e.name)}</td>
-    <td>${esc(e.host)}</td>
-    <td><span class="pill pill-grey">${esc(e.type)}</span></td>
-    <td>${e.attended ? '<span class="pill pill-green">Yes</span>' : '<span class="pill pill-grey">Planned</span>'}</td>
-    <td class="right mono">${e.meetings_set}</td>
-    <td class="right mono">${e.opportunities_opened}</td>
+    <td style="font-weight:600">${esc(e.name||'')}</td>
+    <td>${esc(e.host||'')}</td>
+    <td><span class="pill pill-grey">${esc(e.type||'')}</span></td>
+    <td>${e.attended ? '<span class="pill pill-green">Attended</span>' : '<span class="pill pill-grey">Planned</span>'}</td>
+    <td class="right mono">${e.meetings_set||0}</td>
+    <td class="right mono">${e.opportunities_opened||0}</td>
     <td>${e.followup_sent ? '<span class="pill pill-green">Sent</span>' : '<span class="pill pill-red">Pending</span>'}</td>
-  </tr>`).join('');
+    <td style="white-space:nowrap">${editBtn(e.id,'openEventModal')}${delBtn(e.id,'deleteEvent')}</td>
+  </tr>`).join('') || '<tr><td colspan="9" class="empty">No events tracked yet.</td></tr>';
+  const evAddRow = document.getElementById('events-add-row');
+  if(evAddRow) evAddRow.innerHTML = `<td colspan="9" style="padding:8px 10px">${addBtnHtml('Add event','openEventModal')}</td>`;
 
-  document.getElementById('opps-body').innerHTML = WIN_LOSS.map(o=>`<tr>
-    <td style="font-weight:600">${esc(o.pitch)}</td>
-    <td>${esc(o.brand)}</td>
+  // ── Win/Loss ──
+  document.getElementById('opps-body').innerHTML = [...WIN_LOSS].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(o=>`<tr>
+    <td style="font-weight:600">${esc(o.pitch||'')}</td>
+    <td>${esc(o.brand||'')}</td>
     <td>${esc(getOrg(o.via).name)}</td>
-    <td class="mono" style="font-size:11px">${o.date}</td>
+    <td class="mono" style="font-size:11px">${o.date||''}</td>
     <td class="right">${fmt(o.value)}</td>
-    <td>${outcomePill(o.outcome)}</td>
-    <td style="font-size:11px;color:var(--red)">${esc(o.loss_reason)}</td>
-    <td style="font-size:11px;color:#444">${esc(o.learnings)}</td>
-  </tr>`).join('');
+    <td>${outcomePill(o.outcome||'')}</td>
+    <td style="font-size:11px;color:var(--red)">${esc(o.loss_reason||'')}</td>
+    <td style="font-size:11px;color:#444">${esc(o.learnings||'')}</td>
+    <td style="white-space:nowrap">${editBtn(o.id,'openWinLossModal')}${delBtn(o.id,'deleteWinLoss')}</td>
+  </tr>`).join('') || '<tr><td colspan="9" class="empty">No pitches logged yet.</td></tr>';
+  const wlAddRow = document.getElementById('winloss-add-row');
+  if(wlAddRow) wlAddRow.innerHTML = `<td colspan="9" style="padding:8px 10px">${addBtnHtml('Log pitch','openWinLossModal')}</td>`;
 }
 
 // ═══════════════════════════════════════════════
@@ -1102,13 +1106,313 @@ function renderROI() {
     {label:'Revenue per £1 invested',value:totalFees?'£'+(totalRevenue/totalFees).toFixed(2):'—',sub:'Paid partners only',cls:'green'},
   ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
 
-  document.getElementById('blockers-body').innerHTML = BLOCKERS.map(b=>`<tr>
-    <td style="font-weight:600">${esc(getOrg(b.org_id).name)}</td>
-    <td>${esc(b.person)}</td>
-    <td style="font-size:12px;color:var(--red)">${esc(b.blocker)}</td>
-    <td style="font-size:12px">${esc(b.action)}</td>
-    <td><span class="pill ${b.status==='In progress'?'pill-amber':'pill-grey'}">${esc(b.status)}</span></td>
-  </tr>`).join('');
+  // Blockers now live in BD Planner → Decisions board
+  const blockerNote = document.getElementById('blockers-body');
+  if(blockerNote) blockerNote.innerHTML = '<tr><td colspan="5" style="padding:14px;font-size:12px;color:var(--grey-mid)">Blockers have moved to the <a href="https://jungle-is-massive.github.io/jungle-bd-planner/" target="_blank" style="color:var(--black);font-weight:700">BD Planner → Decisions board</a> where all strategic open questions live.</td></tr>';
+}
+
+// ═══════════════════════════════════════════════
+// SUPABASE — TRACKING DATA LOADERS
+// ═══════════════════════════════════════════════
+
+async function loadTrackingData() {
+  const SB = SUPABASE_URL;
+  const H = SB_HEADERS;
+  const q = async (table, order) => {
+    try {
+      const r = await fetch(`${SB}/rest/v1/${table}?select=*&order=${order}`, {headers:H});
+      if(!r.ok) return [];
+      return r.json();
+    } catch(e) { return []; }
+  };
+  const [tp, br, ed, ev, wl] = await Promise.all([
+    q('int_touchpoints','date.desc'),
+    q('int_briefs','date.desc'),
+    q('int_editorial','date.desc'),
+    q('int_events','date.asc'),
+    q('int_winloss','date.desc'),
+  ]);
+  TOUCHPOINTS = tp;
+  BRIEFS      = br;
+  EDITORIAL   = ed;
+  EVENTS      = ev;
+  WIN_LOSS    = wl;
+}
+
+async function sbWrite(method, table, body, id) {
+  const url = id
+    ? `${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`
+    : `${SUPABASE_URL}/rest/v1/${table}`;
+  const r = await fetch(url, {
+    method,
+    headers: {...SB_HEADERS, 'Prefer':'return=representation'},
+    body: JSON.stringify(body),
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method:'DELETE', headers:SB_HEADERS,
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+
+// ─── Generic modal helper ────────────────────────────────────────
+function openIntModal(opts) {
+  // opts: { title, fields, values, onSave, onDelete }
+  const backdrop = document.createElement('div');
+  backdrop.id = 'int-modal-backdrop';
+  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(17,17,16,0.5);backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
+  backdrop.onclick = e => { if(e.target===backdrop) closeIntModal(); };
+
+  const fieldsHtml = opts.fields.map(f => {
+    const v = opts.values ? (opts.values[f.key] ?? '') : '';
+    const label = `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:5px">${f.label}</div>`;
+    if(f.type === 'select') {
+      const options = f.options.map(o => `<option value="${o.v||o}"${String(v)===String(o.v||o)?' selected':''}>${o.l||o}</option>`).join('');
+      return `<label style="display:block">${label}<select name="${f.key}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--white)">${options}</select></label>`;
+    }
+    if(f.type === 'checkbox') {
+      return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" name="${f.key}" ${v?'checked':''} style="width:16px;height:16px;cursor:pointer"> <span style="font-size:13px">${f.label}</span></label>`;
+    }
+    if(f.type === 'textarea') {
+      return `<label style="display:block">${label}<textarea name="${f.key}" rows="2" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;resize:vertical">${String(v).replace(/</g,'&lt;')}</textarea></label>`;
+    }
+    return `<label style="display:block">${label}<input name="${f.key}" type="${f.type||'text'}" value="${String(v).replace(/"/g,'&quot;')}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px"></label>`;
+  }).join('');
+
+  backdrop.innerHTML = `<div style="background:var(--white);border-radius:16px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px -10px rgba(0,0,0,0.35)">
+    <div style="padding:20px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">${opts.title}</div>
+      <button onclick="closeIntModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--grey-mid);line-height:1">✕</button>
+    </div>
+    <form id="int-modal-form" style="padding:20px 24px;display:grid;gap:12px">
+      ${fieldsHtml}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);margin-top:4px">
+        <div>${opts.onDelete ? `<button type="button" id="int-del-btn" onclick="intModalDelete()" style="background:none;border:1px solid rgba(224,92,92,0.4);color:var(--red);padding:7px 14px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:11px;cursor:pointer">Delete</button>` : ''}</div>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="closeIntModal()" style="background:none;border:1.5px solid var(--border);padding:8px 16px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+          <button type="submit" id="int-save-btn" style="background:var(--black);color:var(--green);border:none;padding:8px 18px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>`;
+
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('int-modal-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('int-save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const fd = new FormData(e.target);
+    const data = {};
+    opts.fields.forEach(f => {
+      if(f.type==='checkbox') data[f.key] = fd.get(f.key) === 'on';
+      else if(f.type==='number') data[f.key] = parseInt(fd.get(f.key))||0;
+      else data[f.key] = fd.get(f.key)||null;
+    });
+    try {
+      await opts.onSave(data);
+      closeIntModal();
+    } catch(err) {
+      alert('Save failed: '+err.message);
+      btn.disabled=false; btn.textContent='Save';
+    }
+    return false;
+  };
+
+  if(opts.onDelete) {
+    window.intModalDelete = async () => {
+      if(!confirm('Delete this record?')) return;
+      try { await opts.onDelete(); closeIntModal(); }
+      catch(err) { alert('Delete failed: '+err.message); }
+    };
+  }
+}
+
+function closeIntModal() {
+  const m = document.getElementById('int-modal-backdrop');
+  if(m) m.remove();
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape' && document.getElementById('int-modal-backdrop')) closeIntModal();
+});
+
+// ─── TOUCHPOINTS CRUD ────────────────────────────────────────────
+const ORG_OPTIONS = () => INTERMEDIARIES.map(i=>({v:i.id,l:i.name}));
+const TP_TYPES = ['Meeting','Coffee','Call','Email','Event','Intro Call','Intro Meeting','Roundtable','Other'];
+const OWNERS   = ['Coris','Jade','Mal','Oscar','Ro'];
+
+function openTpModal(id) {
+  const rec = id ? TOUCHPOINTS.find(r=>r.id===id) : null;
+  openIntModal({
+    title: rec ? 'Edit touchpoint' : 'Add touchpoint',
+    fields: [
+      {key:'date',    label:'Date *',        type:'date'},
+      {key:'org_id',  label:'Intermediary *', type:'select', options:ORG_OPTIONS()},
+      {key:'person',  label:'Person',        type:'text'},
+      {key:'type',    label:'Type',          type:'select', options:TP_TYPES},
+      {key:'owner',   label:'Owner',         type:'select', options:OWNERS},
+      {key:'notes',   label:'Notes',         type:'textarea'},
+      {key:'next_step',label:'Next step',    type:'textarea'},
+    ],
+    values: rec,
+    onSave: async (data) => {
+      const saved = await sbWrite(rec?'PATCH':'POST','int_touchpoints',data,rec?.id);
+      if(rec) TOUCHPOINTS = TOUCHPOINTS.map(r=>r.id===rec.id?saved[0]:r);
+      else TOUCHPOINTS.unshift(saved[0]);
+      renderTracking(); renderOverview();
+    },
+    onDelete: rec ? async()=>{ await sbDelete('int_touchpoints',rec.id); TOUCHPOINTS=TOUCHPOINTS.filter(r=>r.id!==rec.id); renderTracking(); renderOverview(); } : null,
+  });
+}
+
+async function deleteTp(id) {
+  if(!confirm('Delete this touchpoint?')) return;
+  await sbDelete('int_touchpoints',id);
+  TOUCHPOINTS=TOUCHPOINTS.filter(r=>r.id!==id);
+  renderTracking(); renderOverview();
+}
+
+// ─── BRIEFS CRUD ─────────────────────────────────────────────────
+const BRIEF_STAGES = ['Longlist','Shortlist','Chemistry','Pitch','Pitch Sent','Presented & Awaiting','Closed'];
+
+function openBriefModal(id) {
+  const rec = id ? BRIEFS.find(r=>r.id===id) : null;
+  openIntModal({
+    title: rec ? 'Edit brief' : 'Add brief',
+    fields: [
+      {key:'date',    label:'Date received *', type:'date'},
+      {key:'brand',   label:'Brand',           type:'text'},
+      {key:'via',     label:'Via (intermediary)',type:'select',options:ORG_OPTIONS()},
+      {key:'type',    label:'Brief type',      type:'text'},
+      {key:'value',   label:'Value (£)',       type:'number'},
+      {key:'stage',   label:'Stage',           type:'select',options:BRIEF_STAGES},
+      {key:'outcome', label:'Outcome',         type:'select',options:[{v:'',l:'In progress'},{v:'Won',l:'Won'},{v:'Lost',l:'Lost'},{v:'No pitch',l:'No pitch'}]},
+      {key:'notes',   label:'Notes',           type:'textarea'},
+    ],
+    values: rec,
+    onSave: async (data) => {
+      const saved = await sbWrite(rec?'PATCH':'POST','int_briefs',data,rec?.id);
+      if(rec) BRIEFS = BRIEFS.map(r=>r.id===rec.id?saved[0]:r);
+      else BRIEFS.unshift(saved[0]);
+      renderTracking(); renderROI();
+    },
+    onDelete: rec ? async()=>{ await sbDelete('int_briefs',rec.id); BRIEFS=BRIEFS.filter(r=>r.id!==rec.id); renderTracking(); renderROI(); } : null,
+  });
+}
+
+async function deleteBrief(id) {
+  if(!confirm('Delete this brief?')) return;
+  await sbDelete('int_briefs',id);
+  BRIEFS=BRIEFS.filter(r=>r.id!==id);
+  renderTracking(); renderROI();
+}
+
+// ─── EDITORIAL CRUD ──────────────────────────────────────────────
+const ED_TYPES = ['Thought Leadership','Opinion','Interview','Agency Profile','Case Study','Roundup'];
+
+function openEditorialModal(id) {
+  const rec = id ? EDITORIAL.find(r=>r.id===id) : null;
+  openIntModal({
+    title: rec ? 'Edit editorial' : 'Add editorial',
+    fields: [
+      {key:'date',               label:'Date *',              type:'date'},
+      {key:'publication',        label:'Publication',         type:'text'},
+      {key:'type',               label:'Type',                type:'select',options:ED_TYPES},
+      {key:'title',              label:'Title / headline',    type:'text'},
+      {key:'commercial_movement',label:'Commercial movement', type:'text'},
+      {key:'meetings_booked',    label:'Meetings booked',     type:'number'},
+    ],
+    values: rec,
+    onSave: async (data) => {
+      const saved = await sbWrite(rec?'PATCH':'POST','int_editorial',data,rec?.id);
+      if(rec) EDITORIAL = EDITORIAL.map(r=>r.id===rec.id?saved[0]:r);
+      else EDITORIAL.unshift(saved[0]);
+      renderTracking();
+    },
+    onDelete: rec ? async()=>{ await sbDelete('int_editorial',rec.id); EDITORIAL=EDITORIAL.filter(r=>r.id!==rec.id); renderTracking(); } : null,
+  });
+}
+
+async function deleteEditorial(id) {
+  if(!confirm('Delete?')) return;
+  await sbDelete('int_editorial',id);
+  EDITORIAL=EDITORIAL.filter(r=>r.id!==id);
+  renderTracking();
+}
+
+// ─── EVENTS CRUD ─────────────────────────────────────────────────
+const EV_TYPES = ['Industry Networking','Roundtable','Conference','Dinner','Workshop','Awards','Speaking slot','Other'];
+
+function openEventModal(id) {
+  const rec = id ? EVENTS.find(r=>r.id===id) : null;
+  openIntModal({
+    title: rec ? 'Edit event' : 'Add event',
+    fields: [
+      {key:'date',                label:'Date *',           type:'date'},
+      {key:'name',                label:'Event name',       type:'text'},
+      {key:'host',                label:'Host',             type:'text'},
+      {key:'type',                label:'Type',             type:'select',options:EV_TYPES},
+      {key:'attended',            label:'Attended',         type:'checkbox'},
+      {key:'meetings_set',        label:'Meetings set',     type:'number'},
+      {key:'opportunities_opened',label:'Opps opened',      type:'number'},
+      {key:'followup_sent',       label:'Follow-up sent',   type:'checkbox'},
+    ],
+    values: rec,
+    onSave: async (data) => {
+      const saved = await sbWrite(rec?'PATCH':'POST','int_events',data,rec?.id);
+      if(rec) EVENTS = EVENTS.map(r=>r.id===rec.id?saved[0]:r);
+      else EVENTS.push(saved[0]);
+      renderTracking();
+    },
+    onDelete: rec ? async()=>{ await sbDelete('int_events',rec.id); EVENTS=EVENTS.filter(r=>r.id!==rec.id); renderTracking(); } : null,
+  });
+}
+
+async function deleteEvent(id) {
+  if(!confirm('Delete?')) return;
+  await sbDelete('int_events',id);
+  EVENTS=EVENTS.filter(r=>r.id!==id);
+  renderTracking();
+}
+
+// ─── WIN/LOSS CRUD ───────────────────────────────────────────────
+function openWinLossModal(id) {
+  const rec = id ? WIN_LOSS.find(r=>r.id===id) : null;
+  openIntModal({
+    title: rec ? 'Edit pitch' : 'Log pitch',
+    fields: [
+      {key:'date',        label:'Date *',          type:'date'},
+      {key:'pitch',       label:'Pitch name',      type:'text'},
+      {key:'brand',       label:'Brand',           type:'text'},
+      {key:'via',         label:'Via (intermediary)',type:'select',options:ORG_OPTIONS()},
+      {key:'value',       label:'Value (£)',       type:'number'},
+      {key:'outcome',     label:'Outcome',         type:'select',options:[{v:'',l:'In progress'},{v:'Won',l:'Won'},{v:'Lost',l:'Lost'}]},
+      {key:'loss_reason', label:'Loss reason',     type:'text'},
+      {key:'learnings',   label:'Learnings',       type:'textarea'},
+    ],
+    values: rec,
+    onSave: async (data) => {
+      const saved = await sbWrite(rec?'PATCH':'POST','int_winloss',data,rec?.id);
+      if(rec) WIN_LOSS = WIN_LOSS.map(r=>r.id===rec.id?saved[0]:r);
+      else WIN_LOSS.unshift(saved[0]);
+      renderTracking(); renderROI();
+    },
+    onDelete: rec ? async()=>{ await sbDelete('int_winloss',rec.id); WIN_LOSS=WIN_LOSS.filter(r=>r.id!==rec.id); renderTracking(); renderROI(); } : null,
+  });
+}
+
+async function deleteWinLoss(id) {
+  if(!confirm('Delete?')) return;
+  await sbDelete('int_winloss',id);
+  WIN_LOSS=WIN_LOSS.filter(r=>r.id!==id);
+  renderTracking(); renderROI();
 }
 
 // ═══════════════════════════════════════════════
@@ -1344,22 +1648,22 @@ document.addEventListener('keydown', (e) => {
 // INIT
 // ═══════════════════════════════════════════════
 (async () => {
-  // Render immediately with hardcoded data so the page isn't blank
+  // Render immediately from hardcoded/empty data — page is never blank
   renderOverview();
   renderDashboard();
 
-  // Then load Supabase data and re-render views that depend on it
-  await loadPeople();
+  // Load all Supabase data in parallel
+  await Promise.all([loadPeople(), loadTrackingData()]);
 
-  // Re-render whichever view is active
+  // Re-render all views with live data
   const activeView = document.querySelector('.view.active');
-  if (activeView) {
-    const viewId = activeView.id.replace('view-', '');
-    const renderFn = { overview: renderOverview, plan: renderPlan, dashboard: renderDashboard, tracking: renderTracking, people: renderPeople, roi: renderROI }[viewId];
-    if (renderFn) renderFn();
-  } else {
-    renderOverview();
-  }
+  const viewId = activeView ? activeView.id.replace('view-', '') : 'overview';
+  // Always re-render overview + dashboard as they show summary data
+  renderOverview();
+  renderDashboard();
+  // Re-render whichever tab is active
+  const renderFn = { tracking: renderTracking, people: renderPeople, roi: renderROI }[viewId];
+  if (renderFn) renderFn();
 })();
 </script>
   <script src="https://jungle-is-massive.github.io/hub/hub-overlay.js" defer></script>
