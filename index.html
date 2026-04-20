@@ -664,8 +664,9 @@ const INTERMEDIARIES = [
   { id:'creativebrief', name:'Creativebrief', tier:1, paid:true, status:'Active', fee:7200, pitches_expected:5, avg_value:150000, rel_strength:4, last_touchpoint:'2026-04-02', next_action:'Submit case study for Bite editorial', owner:'Coris', notes:'Editorial relationship as well as pitch. Strong fit for our positioning.' },
   { id:'oystercatchers', name:'Oystercatchers', tier:1, paid:true, status:'Active', fee:9000, pitches_expected:3, avg_value:320000, rel_strength:2, last_touchpoint:'2026-03-10', next_action:'Book coffee with Sarah — overdue', owner:'Jade', notes:'Need to deepen relationship beyond initial registration.' },
   { id:'observatory', name:'Observatory International', tier:2, paid:false, status:'Warm', fee:0, pitches_expected:2, avg_value:200000, rel_strength:3, last_touchpoint:'2026-03-28', next_action:'Attend their next roundtable', owner:'Coris', notes:'Unpaid but genuinely influential. Worth consistent investment.' },
-  { id:'tuffon', name:'Tuffon Hall', tier:2, paid:false, status:'Warm', fee:0, pitches_expected:1, avg_value:180000, rel_strength:2, last_touchpoint:'2026-02-20', next_action:'Send Death of Vanity piece', owner:'Coris', notes:'Senior consultancy. Slow to warm but worth it.' },
-  { id:'elevator', name:'Nicky Bullard / Elevator', tier:2, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:150000, rel_strength:1, last_touchpoint:'2026-03-05', next_action:'Arrange intro lunch with Coris + Jade', owner:'Jade', notes:'Independent. Highly influential with mid-market brands.' },
+  { id:'tuffon', name:'Tuffon Hall', tier:2, paid:false, status:'Warm', fee:0, pitches_expected:1, avg_value:180000, rel_strength:2, last_touchpoint:'2026-02-20', next_action:'Send Death of Vanity piece', owner:'Coris', notes:'Senior consultancy. Slow to warm but worth it.', website:'https://www.tuffonhallconsultancy.com' },
+  { id:'auditstar', name:'Auditstar', tier:2, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:150000, rel_strength:1, last_touchpoint:null, next_action:'Initial outreach — arrange intro', owner:'Coris', notes:'MD is Caroline Lane. Agency search and pitch consultancy.', website:'https://auditstar.co.uk' },
+  { id:'individual_consultants', name:'Individual Consultants', tier:2, paid:false, status:'Active', fee:0, pitches_expected:2, avg_value:175000, rel_strength:2, last_touchpoint:'2026-03-05', next_action:'Progress conversations with Nicky and Alex', owner:'Jade', notes:'Nicky Bullard (Elevator) and Alex Young (Alex Young Consulting). Individual operators with high influence.', isGroup:true },
   { id:'masterclassing', name:'Masterclassing', tier:3, paid:true, status:'Active', fee:3500, pitches_expected:2, avg_value:100000, rel_strength:3, last_touchpoint:'2026-04-08', next_action:'Confirm Sep speaking slot', owner:'Coris', notes:'More of a visibility play. Speaking slot in Sep confirmed in principle.' },
   { id:'gonetwork', name:'The GO Network', tier:2, paid:true, status:'Active', fee:4200, pitches_expected:2, avg_value:175000, rel_strength:2, last_touchpoint:'2026-03-20', next_action:'Submit profile update + new case studies', owner:'Coris', notes:'Directory + editorial. Profile needs refreshing.' },
   { id:'adassoc', name:'Advertising Association', tier:3, paid:false, status:'Early', fee:0, pitches_expected:1, avg_value:200000, rel_strength:1, last_touchpoint:'2026-02-14', next_action:'Identify right events to attend', owner:'Coris', notes:'Long-term play. Valuable for brand positioning.' },
@@ -679,7 +680,7 @@ const TOUCHPOINTS = [
   { date:'2026-03-20', org_id:'gonetwork', person:'Sarah Miles', type:'Email', owner:'Coris', notes:'Chased profile update. Sarah confirmed submission window open.', next_step:'Submit updated profile + 2 new case studies' },
   { date:'2026-03-14', org_id:'ingenuity', person:'Chris Dodd', type:'Event', owner:'Jade', notes:'Met at MAD//Meets. Brief conversation. Follow-up interest expressed.', next_step:'Coris to send tailored deck within 1 week' },
   { date:'2026-03-10', org_id:'oystercatchers', person:'Sarah Golding', type:'Intro Meeting', owner:'Jade', notes:'Initial registration meeting. Good but generic. Need to go deeper.', next_step:'Book coffee with Sarah specifically — not a team meeting' },
-  { date:'2026-03-05', org_id:'elevator', person:'Nicky Bullard', type:'Intro Call', owner:'Jade', notes:'Warm intro via mutual contact. Nicky interested in the publisher-heritage angle.', next_step:'Arrange proper lunch with Coris + Jade together' },
+  { date:'2026-03-05', org_id:'individual_consultants', person:'Nicky Bullard', type:'Intro Call', owner:'Jade', notes:'Warm intro via mutual contact. Nicky interested in the publisher-heritage angle.', next_step:'Arrange proper lunch with Coris + Jade together' },
 ];
 
 const BRIEFS = [
@@ -723,8 +724,10 @@ let PEOPLE = [
   { org_id:'oystercatchers', name:'Sarah Golding', title:'CEO', role:'Decision maker', warmth:'neutral', influence:'high', notes:'High-profile. Relationship needs deepening — move from known to trusted.' },
   { org_id:'oystercatchers', name:'Mark Evans', title:'Consultant', role:'Longlist builder', warmth:'cold', influence:'medium', notes:'Handles social and content briefs. Doesn\'t know Jungle specifically.' },
   { org_id:'observatory', name:'Tom Darby', title:'Director', role:'Longlist builder', warmth:'warm', influence:'high', notes:'Met at their roundtable. Good connection. Keep up regular contact.' },
-  { org_id:'tuffon', name:'Caroline Hall', title:'Founder', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Ex-agency leader. Respected. Needs a proper sit-down — not email.' },
-  { org_id:'elevator', name:'Nicky Bullard', title:'Founder', role:'Decision maker', warmth:'warm', influence:'high', notes:'Highly influential independently. Warm to Jungle\'s publisher angle. Move quickly.' },
+  { org_id:'tuffon', name:'Angus Crowther', title:'Founder', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Founder of Tuffon Hall Consultancy. Senior ex-agency leader.' },
+  { org_id:'individual_consultants', name:'Nicky Bullard', title:'Founder, Elevator', role:'Decision maker', warmth:'warm', influence:'high', notes:'Highly influential independently. Warm to Jungle\'s publisher angle. Move quickly.', website:'https://www.elevator-london.com' },
+  { org_id:'individual_consultants', name:'Alex Young', title:'Founder, Alex Young Consulting', role:'Decision maker', warmth:'neutral', influence:'high', notes:'Independent pitch consultant. PR Agency Search and Pitch Consultancy.', website:'https://www.ay-co.uk' },
+  { org_id:'auditstar', name:'Caroline Lane', title:'Managing Director', role:'Decision maker', warmth:'neutral', influence:'high', notes:'MD of Auditstar. Agency search and pitch consultancy.' },
   { org_id:'masterclassing', name:'James Fenwick', title:'Programme Director', role:'Programme lead', warmth:'warm', influence:'medium', notes:'Confirmed speaking slot. Speaking = visibility with their client audience.' },
   { org_id:'gonetwork', name:'Sarah Miles', title:'Head of Members', role:'Account manager', warmth:'neutral', influence:'low', notes:'Day-to-day contact. Useful but not decision maker.' },
 ];
@@ -849,11 +852,11 @@ function renderDashboard() {
     if(i.paid) totalFees += i.fee;
     totalPitches += i.pitches_expected;
     totalProjected += proj;
-    return `<tr>
-      <td style="font-weight:600">${esc(i.name)}</td>
-      <td>${tierPill(i.tier)}</td>
+    return `<tr${i.isGroup ? ' style="background:rgba(139,255,87,0.04)"' : ''}>
+      <td style="font-weight:600">${esc(i.name)}${i.isGroup ? ' <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grey-mid);font-weight:400">(Nicky Bullard · Alex Young)</span>' : ''}</td>
+      <td>${i.isGroup ? '<span class="pill pill-blue" style="font-size:10px">Group</span>' : tierPill(i.tier)}</td>
       <td>${statusPill(i.status)}</td>
-      <td class="right">${i.paid ? fmt(i.fee) : '<span class="muted">Unpaid</span>'}</td>
+      <td class="right">${i.isGroup ? '<span class="muted">—</span>' : (i.paid ? fmt(i.fee) : '<span class="muted">Unpaid</span>')}</td>
       <td class="right mono">${i.pitches_expected}</td>
       <td class="right">${fmt(i.avg_value)}</td>
       <td class="right" style="font-weight:700;color:var(--green-dim)">${fmt(proj)}</td>
@@ -989,7 +992,13 @@ function renderPeople() {
       <div class="flex-between" style="margin-bottom:14px">
         <div>
           <div style="font-size:17px;font-weight:800;letter-spacing:-0.02em">${esc(org.name)}</div>
-          <div style="font-size:11px;color:var(--grey-mid);margin-top:2px">${tierPill(org.tier)} ${org.paid?'<span class="pill pill-black">Paid</span>':'<span class="pill pill-grey">Unpaid</span>'}</div>
+          <div style="font-size:11px;color:var(--grey-mid);margin-top:2px">
+            ${org.isGroup
+              ? '<span class="pill pill-blue">Individual Consultants</span>'
+              : tierPill(org.tier) + ' ' + (org.paid ? '<span class="pill pill-black">Paid</span>' : '<span class="pill pill-grey">Unpaid</span>')
+            }
+            ${org.website && !org.isGroup ? `<a href="${esc(org.website)}" target="_blank" rel="noopener" style="margin-left:8px;font-size:10px;color:var(--grey-mid);text-decoration:none;font-weight:600">${esc(org.website.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])} ↗</a>` : ''}
+          </div>
         </div>
         ${strengthHtml(org.rel_strength)}
       </div>
@@ -1012,6 +1021,7 @@ function renderPeople() {
           ${p.notes ? `<div style="font-size:11px;color:#555;margin-top:10px;line-height:1.5">${esc(p.notes)}</div>` : ''}
           ${p.role ? `<div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.08em">${esc(p.role)}</div>` : ''}
           ${p.linkedin_url ? `<a href="${esc(p.linkedin_url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;color:var(--blue);text-decoration:none;font-weight:600"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>` : ''}
+          ${p.website ? `<a href="${esc(p.website)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:${p.linkedin_url?'4':'8'}px;font-size:10px;color:var(--grey-mid);text-decoration:none;font-weight:600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>${esc(p.website.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>` : ''}
         </div>`).join('')}
       </div>
     </div>`;
@@ -1159,7 +1169,7 @@ function openPersonModal(id) {
 
   // Build org options — grouped by tier
   const orgOptions = INTERMEDIARIES.map(i =>
-    `<option value="${i.id}"${person && person.org_id === i.id ? ' selected' : ''}>${esc(i.name)} (Tier ${i.tier})</option>`
+    `<option value="${i.id}"${person && person.org_id === i.id ? ' selected' : ''}>${esc(i.name)}${i.isGroup ? ' — Individual Consultants' : ' (Tier ' + i.tier + ')'}</option>`
   ).join('');
 
   const modalHtml = `
@@ -1228,6 +1238,11 @@ function openPersonModal(id) {
               <input name="linkedin_url" type="url" value="${person ? esc(person.linkedin_url || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" placeholder="https://www.linkedin.com/in/…" />
             </label>
 
+            <label style="display:block" id="pm-website-row">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Website</div>
+              <input name="website" type="url" value="${person ? esc(person.website || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" placeholder="https://www.example.com" />
+            </label>
+
             <label style="display:block">
               <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Email</div>
               <input name="email" type="email" value="${person ? esc(person.email || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" placeholder="name@example.com" />
@@ -1294,6 +1309,7 @@ async function submitPersonForm(event, id) {
     warmth: fd.get('warmth'),
     influence: fd.get('influence'),
     linkedin_url: fd.get('linkedin_url').trim() || null,
+    website: fd.get('website').trim() || null,
     email: fd.get('email').trim() || null,
     notes: fd.get('notes').trim() || null,
   };
