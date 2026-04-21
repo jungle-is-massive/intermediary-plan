@@ -129,6 +129,26 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
 .timeline-org { font-size: 11px; color: var(--grey-mid); margin-bottom: 5px; }
 .timeline-note { font-size: 12px; color: #444; line-height: 1.5; }
 
+/* ── PEOPLE LIST VIEW ── */
+.people-list-wrap { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.people-list-table { width:100%; border-collapse:collapse; font-size:12px; }
+.people-list-table th { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--grey-mid); padding:9px 14px; text-align:left; border-bottom:1.5px solid var(--border-strong); white-space:nowrap; cursor:pointer; user-select:none; }
+.people-list-table th:hover { color:var(--black); }
+.people-list-table th.sorted { color:var(--black); }
+.people-list-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.people-list-table tbody tr:last-child td { border-bottom:none; }
+.people-list-table tbody tr:hover td { background:rgba(0,0,0,0.018); }
+.pls-name { font-weight:600; font-size:13px; color:var(--black); }
+.pls-title { font-size:11px; color:var(--grey-mid); margin-top:1px; }
+.pls-date { font-family:'DM Mono',monospace; font-size:11px; color:var(--grey-mid); white-space:nowrap; }
+.pls-date.overdue { color:var(--red); font-weight:600; }
+.status-pill { display:inline-block; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:3px 9px; border-radius:100px; white-space:nowrap; }
+.sp-not_started { background:var(--grey-light); color:var(--grey-mid); }
+.sp-contacted   { background:#e8f0ff; color:#2a4ab5; }
+.sp-in_progress { background:rgba(245,166,35,0.15); color:#7a4e00; }
+.sp-warm        { background:rgba(139,255,87,0.2); color:#2d6b00; }
+.sp-stalled     { background:rgba(224,92,92,0.12); color:#9b1c1c; }
+
 /* ── PEOPLE CARDS ── */
 .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 .person-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px; }
@@ -615,7 +635,13 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
 <div class="view" id="view-people">
 <div class="page">
   <div class="page-label">Relationship depth</div>
-  <div class="page-title">People Map</div>
+  <div class="flex-between" style="align-items:center;margin-bottom:4px">
+    <div class="page-title" style="margin-bottom:0">People Map</div>
+    <div style="display:flex;gap:4px;background:var(--grey-light);border-radius:8px;padding:3px">
+      <button id="view-cards-btn" onclick="setPeopleView('cards')" style="padding:5px 14px;border:none;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;cursor:pointer;background:var(--black);color:var(--green)">Cards</button>
+      <button id="view-list-btn"  onclick="setPeopleView('list')"  style="padding:5px 14px;border:none;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;cursor:pointer;background:transparent;color:var(--grey-mid)">List</button>
+    </div>
+  </div>
   <div class="page-sub">Know the organisation isn't enough. Map who matters, who likes Jungle, who needs winning over, and who actually influences longlists.</div>
 
   <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap" id="people-filter-btns"></div>
@@ -1026,21 +1052,106 @@ function renderPeople() {
           ${p.role ? `<div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.08em">${esc(p.role)}</div>` : ''}
           ${p.linkedin_url ? `<a href="${esc(p.linkedin_url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;color:var(--blue);text-decoration:none;font-weight:600"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>` : ''}
           ${p.website ? `<a href="${esc(p.website)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:${p.linkedin_url?'4':'8'}px;font-size:10px;color:var(--grey-mid);text-decoration:none;font-weight:600"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>${esc(p.website.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>` : ''}
+          ${(p.contact_status && p.contact_status !== 'not_started') || p.next_action || p.last_interaction_date ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px">${p.contact_status && p.contact_status !== 'not_started' ? `<span class="status-pill sp-${p.contact_status}">${statusLabel(p.contact_status)}</span>` : ''}${p.last_interaction_date ? `<div style="font-size:10px;color:var(--grey-mid);font-family:'DM Mono',monospace">Last: ${p.last_interaction_date}${p.last_interaction_note ? ' — '+esc(p.last_interaction_note.slice(0,40))+(p.last_interaction_note.length>40?'…':'') : ''}</div>` : ''}${p.next_action ? `<div style="font-size:11px;font-weight:600;color:var(--black)">→ ${esc(p.next_action)}${p.next_action_date ? ' <span style="font-weight:400;font-size:10px;color:var(--grey-mid)">('+p.next_action_date+')</span>' : ''}</div>` : ''}</div>` : ''}
         </div>`).join('')}
       </div>
     </div>`;
   }).join('');
 
-  // Empty state if no people
-  if (!orgSections.trim()) {
-    sections.innerHTML = `<div style="text-align:center;padding:60px 20px;background:var(--white);border:1.5px dashed var(--border);border-radius:14px;color:var(--grey-mid)">
-      <div style="font-size:14px;font-weight:600;margin-bottom:6px">No people yet${activePeopleFilter?' for this intermediary':''}</div>
-      <div style="font-size:12px">Click "Add person" above to start mapping contacts.</div>
-    </div>`;
+  // Branch: list view vs cards view
+  if (peopleViewMode === 'list') {
+    const allFiltered = activePeopleFilter ? PEOPLE.filter(p=>p.org_id===activePeopleFilter) : PEOPLE;
+    sections.innerHTML = allFiltered.length
+      ? renderPeopleList(allFiltered)
+      : `<div style="text-align:center;padding:60px 20px;background:var(--white);border:1.5px dashed var(--border);border-radius:14px;color:var(--grey-mid)"><div style="font-size:14px;font-weight:600;margin-bottom:6px">No people yet</div></div>`;
   } else {
-    sections.innerHTML = orgSections;
+    if (!orgSections.trim()) {
+      sections.innerHTML = `<div style="text-align:center;padding:60px 20px;background:var(--white);border:1.5px dashed var(--border);border-radius:14px;color:var(--grey-mid)">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">No people yet${activePeopleFilter?' for this intermediary':''}</div>
+        <div style="font-size:12px">Click "Add person" above to start mapping contacts.</div>
+      </div>`;
+    } else {
+      sections.innerHTML = orgSections;
+    }
   }
 }
+
+// ── PEOPLE VIEW STATE ──
+let peopleViewMode = 'cards';
+let peopleListSort = { col: 'org', dir: 'asc' };
+
+function setPeopleView(mode) {
+  peopleViewMode = mode;
+  const cb = document.getElementById('view-cards-btn');
+  const lb = document.getElementById('view-list-btn');
+  if(cb){ cb.style.background = mode==='cards'?'var(--black)':'transparent'; cb.style.color = mode==='cards'?'var(--green)':'var(--grey-mid)'; }
+  if(lb){ lb.style.background = mode==='list'?'var(--black)':'transparent';  lb.style.color = mode==='list'?'var(--green)':'var(--grey-mid)'; }
+  renderPeople();
+}
+
+function setListSort(col) {
+  if(peopleListSort.col===col) peopleListSort.dir = peopleListSort.dir==='asc'?'desc':'asc';
+  else peopleListSort = {col, dir:'asc'};
+  renderPeople();
+}
+
+function statusLabel(s) {
+  return {not_started:'Not started',contacted:'Contacted',in_progress:'In progress',warm:'Warm',stalled:'Stalled'}[s]||s||'Not started';
+}
+
+function getOrg(id) { return INTERMEDIARIES.find(i=>i.id===id)||{name:id||'Unknown'}; }
+
+function renderPeopleList(filteredPeople) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sorted = [...filteredPeople].sort((a,b)=>{
+    const d = peopleListSort.dir==='asc'?1:-1;
+    const c = peopleListSort.col;
+    if(c==='org')       return d*(getOrg(a.org_id).name||'').localeCompare(getOrg(b.org_id).name||'');
+    if(c==='name')      return d*(a.name||'').localeCompare(b.name||'');
+    if(c==='status')    return d*((a.contact_status||'not_started').localeCompare(b.contact_status||'not_started'));
+    if(c==='last')      return d*((a.last_interaction_date||'0000').localeCompare(b.last_interaction_date||'0000'));
+    if(c==='next_date') return d*((a.next_action_date||'9999').localeCompare(b.next_action_date||'9999'));
+    return 0;
+  });
+
+  const arrow = col => {
+    if(peopleListSort.col!==col) return '<span style="opacity:.3">↕</span>';
+    return peopleListSort.dir==='asc'?'↑':'↓';
+  };
+  const th = (col,label) => `<th onclick="setListSort('${col}')" class="${peopleListSort.col===col?'sorted':''}">${label} ${arrow(col)}</th>`;
+
+  const rows = sorted.map(p => {
+    const org = getOrg(p.org_id);
+    const nd = p.next_action_date;
+    const overdue = nd && new Date(nd)<today;
+    const st = p.contact_status||'not_started';
+    const lastNote = p.last_interaction_note ? esc(p.last_interaction_note.slice(0,60))+(p.last_interaction_note.length>60?'…':'') : '';
+    return `<tr>
+      <td><div class="pls-name">${esc(p.name)}</div><div class="pls-title">${esc(p.title||'')}</div></td>
+      <td style="font-size:12px;color:var(--grey-mid)">${esc(org.name)}</td>
+      <td><span class="status-pill sp-${st}">${statusLabel(st)}</span></td>
+      <td>
+        ${p.last_interaction_date?`<div class="pls-date">${p.last_interaction_date}</div>`:'<span style="color:var(--grey-mid);font-size:11px">—</span>'}
+        ${lastNote?`<div style="font-size:11px;color:#555;margin-top:2px">${lastNote}</div>`:''}
+      </td>
+      <td>
+        ${p.next_action?`<div style="font-size:12px;font-weight:500;color:var(--black)">${esc(p.next_action)}</div>`:'<span style="color:var(--grey-mid);font-size:11px">—</span>'}
+        ${nd?`<div class="pls-date${overdue?' overdue':''}" style="margin-top:2px">${overdue?'⚠ ':''}${nd}</div>`:''}
+      </td>
+      <td>${warmthPill(p.warmth)}</td>
+      <td style="white-space:nowrap">
+        ${p.id?`<button onclick="openPersonModal('${p.id}')" style="background:transparent;border:1px solid var(--border);border-radius:5px;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);display:inline-flex;align-items:center;justify-content:center" title="Edit"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="people-list-wrap"><table class="people-list-table"><thead><tr>
+    ${th('name','Name')}${th('org','Intermediary')}${th('status','Status')}
+    ${th('last','Last interaction')}${th('next_date','Next action')}
+    <th>Warmth</th><th style="width:40px"></th>
+  </tr></thead><tbody>${rows||'<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--grey-mid)">No people yet.</td></tr>'}</tbody></table></div>`;
+}
+
 
 function filterPeople(id) {
   activePeopleFilter = id;
@@ -1554,7 +1665,42 @@ function openPersonModal(id) {
 
             <label style="display:block">
               <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Notes</div>
-              <textarea name="notes" rows="3" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:64px" placeholder="Relationship context, what they care about, next step…">${person ? esc(person.notes || '') : ''}</textarea>
+              <textarea name="notes" rows="2" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:52px" placeholder="Relationship context, what they care about…">${person ? esc(person.notes || '') : ''}</textarea>
+            </label>
+
+            <div style="height:1px;background:var(--border);margin:6px 0 2px"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px">Activity tracking</div>
+
+            <label style="display:block">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Contact status</div>
+              <select name="contact_status" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--white);cursor:pointer">
+                <option value="not_started"${!person||person.contact_status==='not_started'||!person.contact_status?' selected':''}>Not started</option>
+                <option value="contacted"${person&&person.contact_status==='contacted'?' selected':''}>Contacted</option>
+                <option value="in_progress"${person&&person.contact_status==='in_progress'?' selected':''}>In progress</option>
+                <option value="warm"${person&&person.contact_status==='warm'?' selected':''}>Warm</option>
+                <option value="stalled"${person&&person.contact_status==='stalled'?' selected':''}>Stalled</option>
+              </select>
+            </label>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <label style="display:block">
+                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Last interaction date</div>
+                <input name="last_interaction_date" type="date" value="${person ? esc(person.last_interaction_date || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" />
+              </label>
+              <label style="display:block">
+                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Next action date</div>
+                <input name="next_action_date" type="date" value="${person ? esc(person.next_action_date || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" />
+              </label>
+            </div>
+
+            <label style="display:block">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Last interaction note</div>
+              <input name="last_interaction_note" value="${person ? esc(person.last_interaction_note || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" placeholder="e.g. Intro coffee at Cannes — keen on SMI angle" />
+            </label>
+
+            <label style="display:block">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">Next action</div>
+              <input name="next_action" value="${person ? esc(person.next_action || '') : ''}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px" placeholder="e.g. Send Social Maturity POV piece" />
             </label>
 
           </div>
@@ -1616,6 +1762,11 @@ async function submitPersonForm(event, id) {
     website: fd.get('website').trim() || null,
     email: fd.get('email').trim() || null,
     notes: fd.get('notes').trim() || null,
+    contact_status: fd.get('contact_status') || 'not_started',
+    last_interaction_date: fd.get('last_interaction_date') || null,
+    last_interaction_note: fd.get('last_interaction_note').trim() || null,
+    next_action: fd.get('next_action').trim() || null,
+    next_action_date: fd.get('next_action_date') || null,
   };
   if (!id) record.source = 'page';
 
