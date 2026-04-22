@@ -653,21 +653,49 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
      ROI REVIEW
 ════════════════════════════════════════════ -->
 <div class="view" id="view-roi">
-<div class="page">
+<div class="page wide">
   <div class="page-label">Quarterly review</div>
   <div class="page-title">ROI Review</div>
-  <div class="page-sub">Which intermediaries are driving pipeline. Which aren't. Where you're being blocked. Use this every quarter to decide where to invest, stay, or cut.</div>
+  <div class="page-sub">Intermediary-sourced opportunities — pipeline, wins, and ROI by intermediary. Manage all opportunities here; the full pipeline (all sources) lives on the <a href="https://jungle-is-massive.github.io/jungle-bd-planner/" target="_blank" style="color:var(--black);font-weight:700;text-decoration:none;border-bottom:1px solid var(--border)">BD Planner → Opportunities tab</a>.</div>
 
+  <!-- Live opportunities from intermediaries -->
+  <div class="section-label" style="margin-top:32px">Opportunities from intermediaries</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <input type="text" id="roi-opps-search" placeholder="Search brand, intermediary…" oninput="filterROIOpps()" style="flex:1;min-width:180px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px">
+    <select id="roi-stage-filter" onchange="filterROIOpps()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--white)">
+      <option value="">All stages</option>
+      <option>Longlist</option><option>Shortlist</option><option>RFI</option><option>RTB</option>
+      <option>Pitch</option><option>Pitch Sent</option><option>Presented & Awaiting</option>
+      <option>Negotiation</option><option>Closed</option>
+    </select>
+    <button onclick="openOppModal()" style="background:var(--green);color:var(--black);border:none;padding:8px 16px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap">+ Add opportunity</button>
+  </div>
+  <div class="card-grid card-grid-4" id="roi-opps-stats" style="margin-bottom:20px"></div>
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:36px">
+    <div class="prospects-loading" id="opps-loading" style="display:flex"><div class="prospects-spinner"></div>Loading…</div>
+    <div id="opps-error-msg" style="display:none;padding:20px;font-size:13px;color:var(--grey-mid)"></div>
+    <table class="data-table" id="opps-main-table" style="display:none;width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th>Opportunity</th><th>Brand</th><th>Via</th>
+        <th>Stage</th><th class="right">Value</th><th>Outcome</th>
+        <th>Owner</th><th>Date</th><th style="width:60px"></th>
+      </tr></thead>
+      <tbody id="opps-tbody"></tbody>
+      <tfoot><tr id="opps-add-row"></tr></tfoot>
+    </table>
+  </div>
+
+  <!-- ROI summary by intermediary -->
+  <div class="section-label">ROI by intermediary</div>
   <div class="table-wrap" style="margin-bottom:32px">
     <table class="data-table">
       <thead><tr>
         <th>Intermediary</th><th>Paid?</th>
         <th class="right">Annual Fee</th>
-        <th class="right">Briefs Rec'd</th>
-        <th class="right">Pitches</th>
+        <th class="right">Opps</th>
         <th class="right">Wins</th>
         <th class="right">Revenue Won</th>
-        <th class="right">Cost / Brief</th>
+        <th class="right">Cost / Opp</th>
         <th class="right">Cost / Win</th>
         <th class="right">ROI</th>
         <th>Verdict</th>
@@ -681,13 +709,8 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
   <div class="card-grid card-grid-3" id="roi-benchmarks"></div>
 
   <hr class="section-divider">
-  <div class="section-title" style="margin-bottom:16px">Blockers & Feedback Log</div>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead><tr><th>Intermediary</th><th>Person</th><th>Blocker / Feedback</th><th>What to do about it</th><th>Status</th></tr></thead>
-      <tbody id="blockers-body"></tbody>
-    </table>
-  </div>
+  <div class="section-title" style="margin-bottom:10px">Blockers & Feedback Log</div>
+  <p style="font-size:13px;color:var(--grey-mid);margin-bottom:16px">Blockers have moved to the <a href="https://jungle-is-massive.github.io/jungle-bd-planner/" target="_blank" style="color:var(--black);font-weight:700">BD Planner → Decisions board</a>.</p>
 </div>
 </div>
 
@@ -728,6 +751,13 @@ let WIN_LOSS = [];
 // ═══════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════
+function sbFetch(path, opts={}) {
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: { ...SB_HEADERS, ...(opts.headers||{}) },
+  });
+}
+
 function fmt(n){ if(!n) return '—'; return '£'+Math.round(n).toLocaleString('en-GB'); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getOrg(id){ return INTERMEDIARIES.find(x=>x.id===id)||{name:id}; }
@@ -1161,35 +1191,47 @@ function filterPeople(id) {
 // ═══════════════════════════════════════════════
 // ROI
 // ═══════════════════════════════════════════════
-function renderROI() {
-  let totalFees=0, totalBriefs=0, totalPitches=0, totalWins=0, totalRevenue=0;
+// ROI opportunities filter
+function filterROIOpps() { renderOppsTable(); }
+
+async function renderROI() {
+  // Load intermediary opportunities if not already loaded
+  if(!oppsLoaded || OPPS_DATA._filter !== 'Intermediary,Individual Consultant') {
+    await loadOpportunities('Intermediary,Individual Consultant');
+  } else {
+    renderOppsTable();
+  }
+
+  // Recalculate ROI summary from live opportunities data
+  const opps = Array.isArray(OPPS_DATA) ? OPPS_DATA : [];
+  let totalFees=0, totalOpps=0, totalWins=0, totalRevenue=0;
 
   document.getElementById('roi-body').innerHTML = INTERMEDIARIES.map(i=>{
-    const briefs = BRIEFS.filter(b=>b.via===i.id).length;
-    const pitches = WIN_LOSS.filter(w=>w.via===i.id).length;
-    const wins = WIN_LOSS.filter(w=>w.via===i.id&&w.outcome==='Won').length;
-    const rev = WIN_LOSS.filter(w=>w.via===i.id&&w.outcome==='Won').reduce((s,w)=>s+w.value,0);
-    const costPerBrief = briefs && i.fee ? Math.round(i.fee/briefs) : null;
-    const costPerWin = wins && i.fee ? Math.round(i.fee/wins) : null;
+    const myOpps = opps.filter(o=>o.source_name===i.id || o.source_name===i.name);
+    const wins   = myOpps.filter(o=>o.outcome==='Won');
+    const rev    = wins.reduce((s,o)=>s+(o.value||0),0);
+    const oppCount = myOpps.length;
+    const winCount = wins.length;
+    const costPerOpp = oppCount && i.fee ? Math.round(i.fee/oppCount) : null;
+    const costPerWin = winCount && i.fee ? Math.round(i.fee/winCount) : null;
     const roi = i.fee && rev ? ((rev-i.fee)/i.fee*100).toFixed(0)+'%' : rev ? '∞' : '—';
 
     if(i.paid) totalFees += i.fee;
-    totalBriefs += briefs; totalPitches += pitches; totalWins += wins; totalRevenue += rev;
+    totalOpps += oppCount; totalWins += winCount; totalRevenue += rev;
 
     const verdict = !i.paid ? '<span class="pill pill-grey">Unpaid</span>' :
-      (rev > i.fee*3) ? '<span class="pill pill-green">Strong ROI</span>' :
-      (rev > 0) ? '<span class="pill pill-amber">Developing</span>' :
-      '<span class="pill pill-red">Needs review</span>';
+      rev > i.fee*3 ? '<span class="pill pill-green">Strong ROI</span>' :
+      rev > 0       ? '<span class="pill pill-amber">Developing</span>' :
+                      '<span class="pill pill-red">Needs review</span>';
 
     return `<tr>
       <td style="font-weight:600">${esc(i.name)}</td>
       <td>${i.paid?'<span class="pill pill-black">Yes</span>':'<span class="pill pill-grey">No</span>'}</td>
       <td class="right">${i.paid ? fmt(i.fee) : '—'}</td>
-      <td class="right mono">${briefs||'—'}</td>
-      <td class="right mono">${pitches||'—'}</td>
-      <td class="right mono">${wins||'—'}</td>
+      <td class="right mono">${oppCount||'—'}</td>
+      <td class="right mono">${winCount||'—'}</td>
       <td class="right" style="color:var(--green-dim);font-weight:700">${rev ? fmt(rev) : '—'}</td>
-      <td class="right">${costPerBrief ? fmt(costPerBrief) : '—'}</td>
+      <td class="right">${costPerOpp ? fmt(costPerOpp) : '—'}</td>
       <td class="right">${costPerWin ? fmt(costPerWin) : '—'}</td>
       <td class="right mono" style="font-weight:700">${roi}</td>
       <td>${verdict}</td>
@@ -1199,27 +1241,197 @@ function renderROI() {
   document.getElementById('roi-foot').innerHTML = `<tr>
     <td colspan="2">Totals</td>
     <td class="right">${fmt(totalFees)}</td>
-    <td class="right mono">${totalBriefs}</td>
-    <td class="right mono">${totalPitches}</td>
-    <td class="right mono">${totalWins}</td>
+    <td class="right mono">${totalOpps||'—'}</td>
+    <td class="right mono">${totalWins||'—'}</td>
     <td class="right">${fmt(totalRevenue)}</td>
-    <td class="right">${totalBriefs&&totalFees?fmt(Math.round(totalFees/totalBriefs)):'—'}</td>
+    <td class="right">${totalOpps&&totalFees?fmt(Math.round(totalFees/totalOpps)):'—'}</td>
     <td class="right">${totalWins&&totalFees?fmt(Math.round(totalFees/totalWins)):'—'}</td>
     <td class="right mono">${totalFees&&totalRevenue?((totalRevenue-totalFees)/totalFees*100).toFixed(0)+'%':'—'}</td>
     <td></td>
   </tr>`;
 
-  const avgBriefVal = BRIEFS.length ? Math.round(BRIEFS.reduce((s,b)=>s+b.value,0)/BRIEFS.length) : 0;
-  const winRate = WIN_LOSS.length ? Math.round(WIN_LOSS.filter(w=>w.outcome==='Won').length/WIN_LOSS.length*100) : 0;
+  const winRate = totalOpps ? Math.round(totalWins/totalOpps*100) : 0;
+  const avgVal  = opps.length ? Math.round(opps.reduce((s,o)=>s+(o.value||0),0)/opps.length) : 0;
   document.getElementById('roi-benchmarks').innerHTML = [
-    {label:'Avg brief value',value:fmt(avgBriefVal),sub:'Across all received briefs'},
-    {label:'Win rate',value:winRate+'%',sub:'All intermediary-sourced pitches',cls:winRate>=30?'green':'amber'},
-    {label:'Revenue per £1 invested',value:totalFees?'£'+(totalRevenue/totalFees).toFixed(2):'—',sub:'Paid partners only',cls:'green'},
+    {label:'Live pipeline',  value:fmt(opps.filter(o=>!o.outcome).reduce((s,o)=>s+(o.value||0),0)), cls:'green', sub:'Active intermediary opps'},
+    {label:'Win rate',       value:winRate+'%', cls:winRate>=30?'green':'amber', sub:'Intermediary-sourced pitches'},
+    {label:'Revenue per £1', value:totalFees?'£'+(totalRevenue/totalFees).toFixed(2):'—', cls:'green', sub:'Paid partners only'},
   ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
 
-  // Blockers now live in BD Planner → Decisions board
-  const blockerNote = document.getElementById('blockers-body');
-  if(blockerNote) blockerNote.innerHTML = '<tr><td colspan="5" style="padding:14px;font-size:12px;color:var(--grey-mid)">Blockers have moved to the <a href="https://jungle-is-massive.github.io/jungle-bd-planner/" target="_blank" style="color:var(--black);font-weight:700">BD Planner → Decisions board</a> where all strategic open questions live.</td></tr>';
+  // Update stats widget
+  const statsEl = document.getElementById('roi-opps-stats');
+  if(statsEl) {
+    const live = opps.filter(o=>!o.outcome);
+    const won  = opps.filter(o=>o.outcome==='Won');
+    statsEl.innerHTML = [
+      {label:'Active',  value:live.length},
+      {label:'Pipeline',value:fmt(live.reduce((s,o)=>s+(o.value||0),0)), cls:'green'},
+      {label:'Won',     value:won.length},
+      {label:'Revenue', value:fmt(won.reduce((s,o)=>s+(o.value||0),0))},
+    ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div></div>`).join('');
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// OPPORTUNITIES — loaded from Supabase, filtered to intermediary sources
+// ═══════════════════════════════════════════════════════════════
+const OPP_SOURCE_TYPES = ['Intermediary','Individual Consultant','Inbound','Referral','Personal Contact','Speaking / Event','Dripify','Other'];
+const OPP_STAGES = ['Longlist','Shortlist','Chemistry','RFI','RTB','Pitch','Pitch Sent','Presented & Awaiting','Negotiation','Closed'];
+const OPP_OUTCOMES = ['','Won','Lost','No pitch'];
+const OPP_OWNERS = ['Coris','Jade','Mal','Oscar','Ro'];
+
+let OPPS_DATA = [];
+let oppsLoaded = false;
+
+async function loadOpportunities(sourceTypeFilter, force=false) {
+  const filterKey = String(sourceTypeFilter||'all');
+  if(oppsLoaded && !force && OPPS_DATA._filter===filterKey) { renderOppsTable(); return; }
+  const loadEl=document.getElementById('opps-loading');
+  const errEl=document.getElementById('opps-error-msg');
+  const tblEl=document.getElementById('opps-main-table');
+  if(loadEl) loadEl.style.display='flex';
+  if(errEl) errEl.style.display='none';
+  if(tblEl) tblEl.style.display='none';
+  try {
+    const filter = sourceTypeFilter ? `&source_type=in.(${encodeURIComponent(sourceTypeFilter)})` : '';
+    const r = await sbFetch(`opportunities?select=*&order=date.desc${filter}`);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    OPPS_DATA = await r.json();
+    OPPS_DATA._filter = filterKey;
+    oppsLoaded = true;
+    renderOppsTable();
+  } catch(e) {
+    if(loadEl) loadEl.style.display='none';
+    if(errEl){ errEl.style.display='block'; errEl.textContent='Could not load: '+e.message; }
+  }
+}
+
+function renderOppsTable() {
+  const loadEl=document.getElementById('opps-loading');
+  const tblEl=document.getElementById('opps-main-table');
+  const tbody=document.getElementById('opps-tbody');
+  const addRow=document.getElementById('opps-add-row');
+  if(loadEl) loadEl.style.display='none';
+  const q=(document.getElementById('roi-opps-search')?.value||'').toLowerCase();
+  const sf=document.getElementById('roi-stage-filter')?.value||'';
+  const rows=(Array.isArray(OPPS_DATA)?OPPS_DATA:[]).filter(o=>{
+    if(q && ![(o.title||''),(o.brand||''),(o.source_name||'')].join(' ').toLowerCase().includes(q)) return false;
+    if(sf && o.stage!==sf) return false;
+    return true;
+  });
+  if(!tblEl) return;
+  if(!rows.length){
+    tblEl.style.display='none';
+    const e=document.getElementById('opps-error-msg');
+    if(e){e.style.display='block';e.textContent='No intermediary opportunities yet — click + Add to log one.';}
+    return;
+  }
+  document.getElementById('opps-error-msg').style.display='none';
+  tblEl.style.display='';
+  const sc=s=>({'Longlist':'pill-grey','Shortlist':'pill-blue','RFI':'pill-blue','RTB':'pill-amber','Pitch':'pill-amber','Pitch Sent':'pill-amber','Presented & Awaiting':'pill-amber','Negotiation':'pill-green','Closed':'pill-black'}[s]||'pill-grey');
+  const oc=o=>({'Won':'pill-green','Lost':'pill-red','No pitch':'pill-grey'}[o]||'pill-grey');
+  tbody.innerHTML=rows.map(o=>`<tr>
+    <td style="font-weight:600">${esc(o.title||o.brand||'—')}</td>
+    <td style="font-size:12px">${esc(o.brand||'')}</td>
+    <td style="font-size:11px;color:var(--grey-mid)">${esc(o.source_name||'')}</td>
+    <td><span class="pill ${sc(o.stage)}">${esc(o.stage||'')}</span></td>
+    <td class="right" style="font-family:'DM Mono',monospace;font-size:12px">${o.value?fmt(o.value):'—'}</td>
+    <td>${o.outcome?`<span class="pill ${oc(o.outcome)}">${esc(o.outcome)}</span>`:'<span style="color:var(--grey-mid);font-size:11px">Active</span>'}</td>
+    <td style="font-size:11px">${esc(o.owner||'')}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">${o.date||''}</td>
+    <td style="white-space:nowrap">
+      <button onclick="openOppModal('${o.id}')" style="background:transparent;border:1px solid var(--border);border-radius:5px;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);display:inline-flex;align-items:center;justify-content:center" title="Edit"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button onclick="deleteOpp('${o.id}')" style="background:transparent;border:none;width:24px;height:24px;cursor:pointer;color:var(--grey-mid);font-size:14px" title="Delete">✕</button>
+    </td>
+  </tr>`).join('');
+  if(addRow) addRow.innerHTML=`<td colspan="9" style="padding:8px 12px"><button onclick="openOppModal()" style="background:var(--green);color:var(--black);border:none;padding:6px 14px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;cursor:pointer">+ Add opportunity</button></td>`;
+}
+
+function filterROIOpps(){ renderOppsTable(); }
+
+async function deleteOpp(id){
+  if(!confirm('Delete this opportunity?')) return;
+  await sbFetch(`opportunities?id=eq.${id}`,{method:'DELETE'});
+  OPPS_DATA=OPPS_DATA.filter(o=>o.id!==id);
+  renderOppsTable();
+}
+
+function openOppModal(id){
+  const o=id?OPPS_DATA.find(x=>x.id===id):null;
+  const sel=(key,label,opts,val)=>`<label style="display:block"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:5px">${label}</div><select id="om-${key}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--white)">${opts.map(op=>`<option value="${op}"${op===(val||'')?'  selected':''}>${op||'—'}</option>`).join('')}</select></label>`;
+  const inp=(key,label,type,val,ph)=>`<label style="display:block"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:5px">${label}</div><input id="om-${key}" type="${type||'text'}" value="${esc(val||'')}" placeholder="${ph||''}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px"></label>`;
+  const wrap=document.createElement('div'); wrap.id='opp-modal-wrap';
+  wrap.innerHTML=`<div style="position:fixed;inset:0;background:rgba(17,17,16,0.5);backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeOppModal()">
+    <div style="background:var(--white);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px -10px rgba(0,0,0,0.35)">
+      <div style="padding:20px 24px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">${o?'Edit opportunity':'Add opportunity'}</div>
+        <button onclick="closeOppModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--grey-mid)">✕</button>
+      </div>
+      <div style="padding:20px 24px;display:grid;gap:12px">
+        ${inp('title','Opportunity title *','text',o?.title,'e.g. Wagamama Social Campaign')}
+        ${inp('brand','Brand','text',o?.brand,'e.g. Wagamama')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${sel('source_type','Source type',[''].concat(OPP_SOURCE_TYPES),o?.source_type||'Intermediary')}
+          ${inp('source_name','Via (intermediary name)','text',o?.source_name,'e.g. AAR, Nicky Bullard')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${sel('stage','Stage',OPP_STAGES,o?.stage||'Longlist')}
+          ${inp('value','Value (£)','number',o?.value,'')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          ${sel('outcome','Outcome',OPP_OUTCOMES,o?.outcome||'')}
+          ${sel('owner','Owner',[''].concat(OPP_OWNERS),o?.owner||'')}
+          ${inp('date','Date','date',o?.date,'')}
+        </div>
+        ${inp('loss_reason','Loss reason','text',o?.loss_reason,'')}
+        <label style="display:block"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:5px">Notes / learnings</div>
+          <textarea id="om-notes" rows="2" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical">${esc(o?.notes||o?.learnings||'')}</textarea></label>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border)">
+          <div>${o?`<button onclick="deleteOpp('${o.id}');closeOppModal()" style="background:none;border:1px solid rgba(224,92,92,0.4);color:var(--red);padding:7px 14px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:11px;cursor:pointer">Delete</button>`:''}</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="closeOppModal()" style="background:none;border:1.5px solid var(--border);padding:9px 16px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;cursor:pointer">Cancel</button>
+            <button id="om-save" onclick="saveOppModal('${id||''}')" style="background:var(--black);color:var(--green);border:none;padding:9px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer">${o?'Save changes':'Add opportunity'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(wrap); document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('om-title')?.focus(),50);
+}
+
+function closeOppModal(){
+  document.getElementById('opp-modal-wrap')?.remove();
+  document.body.style.overflow='';
+}
+
+async function saveOppModal(id){
+  const btn=document.getElementById('om-save');
+  btn.disabled=true; btn.textContent='Saving…';
+  const title=document.getElementById('om-title').value.trim();
+  if(!title){alert('Title required');btn.disabled=false;btn.textContent=id?'Save changes':'Add opportunity';return;}
+  const rec={
+    title, brand:document.getElementById('om-brand').value.trim()||null,
+    source_type:document.getElementById('om-source_type').value||'Intermediary',
+    source_name:document.getElementById('om-source_name').value.trim()||null,
+    stage:document.getElementById('om-stage').value||'Longlist',
+    value:parseInt(document.getElementById('om-value').value)||null,
+    outcome:document.getElementById('om-outcome').value||null,
+    owner:document.getElementById('om-owner').value||null,
+    date:document.getElementById('om-date').value||null,
+    loss_reason:document.getElementById('om-loss_reason').value.trim()||null,
+    notes:document.getElementById('om-notes').value.trim()||null,
+    updated_at:new Date().toISOString(),
+  };
+  try{
+    const r=await sbFetch(id?`opportunities?id=eq.${id}`:'opportunities',{
+      method:id?'PATCH':'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify(rec)
+    });
+    const saved=await r.json(); const s=Array.isArray(saved)?saved[0]:saved;
+    if(id) OPPS_DATA=OPPS_DATA.map(o=>o.id===id?s:o); else OPPS_DATA.unshift(s);
+    closeOppModal(); renderOppsTable();
+  }catch(e){btn.disabled=false;btn.textContent=id?'Save changes':'Add opportunity';alert('Save failed: '+e.message);}
 }
 
 // ═══════════════════════════════════════════════
