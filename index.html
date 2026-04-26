@@ -1397,7 +1397,7 @@ function renderOppsTable() {
 function filterROIOpps(){ renderOppsTable(); }
 
 async function deleteOpp(id){
-  if(!confirm('Delete this opportunity?')) return;
+  if(!(await showConfirm({title:'Delete Opportunity',message:'Delete this opportunity? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbFetch(`opportunities?id=eq.${id}`,{method:'DELETE'});
   OPPS_DATA=OPPS_DATA.filter(o=>o.id!==id);
   renderOppsTable();
@@ -1595,7 +1595,7 @@ function openIntModal(opts) {
 
   if(opts.onDelete) {
     window.intModalDelete = async () => {
-      if(!confirm('Delete this record?')) return;
+      if(!(await showConfirm({title:'Delete Record',message:'Delete this record? This can\'t be undone.',confirmLabel:'Delete'}))) return;
       try { await opts.onDelete(); closeIntModal(); }
       catch(err) { alert('Delete failed: '+err.message); }
     };
@@ -1642,7 +1642,7 @@ function openTpModal(id) {
 }
 
 async function deleteTp(id) {
-  if(!confirm('Delete this touchpoint?')) return;
+  if(!(await showConfirm({title:'Delete Touchpoint',message:'Delete this touchpoint? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbDelete('int_touchpoints',id);
   TOUCHPOINTS=TOUCHPOINTS.filter(r=>r.id!==id);
   renderTracking(); renderOverview();
@@ -1677,7 +1677,7 @@ function openBriefModal(id) {
 }
 
 async function deleteBrief(id) {
-  if(!confirm('Delete this brief?')) return;
+  if(!(await showConfirm({title:'Delete Brief',message:'Delete this brief? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbDelete('int_briefs',id);
   BRIEFS=BRIEFS.filter(r=>r.id!==id);
   renderTracking(); renderROI();
@@ -1710,7 +1710,7 @@ function openEditorialModal(id) {
 }
 
 async function deleteEditorial(id) {
-  if(!confirm('Delete?')) return;
+  if(!(await showConfirm({title:'Delete Editorial',message:'Delete this editorial record? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbDelete('int_editorial',id);
   EDITORIAL=EDITORIAL.filter(r=>r.id!==id);
   renderTracking();
@@ -1745,7 +1745,7 @@ function openEventModal(id) {
 }
 
 async function deleteEvent(id) {
-  if(!confirm('Delete?')) return;
+  if(!(await showConfirm({title:'Delete Event',message:'Delete this event? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbDelete('int_events',id);
   EVENTS=EVENTS.filter(r=>r.id!==id);
   renderTracking();
@@ -1778,7 +1778,7 @@ function openWinLossModal(id) {
 }
 
 async function deleteWinLoss(id) {
-  if(!confirm('Delete?')) return;
+  if(!(await showConfirm({title:'Delete Win/Loss',message:'Delete this record? This can\'t be undone.',confirmLabel:'Delete'}))) return;
   await sbDelete('int_winloss',id);
   WIN_LOSS=WIN_LOSS.filter(r=>r.id!==id);
   renderTracking(); renderROI();
@@ -1819,7 +1819,7 @@ async function savePerson(record, id) {
 }
 
 async function deletePerson(id, name) {
-  if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+  if(!(await showConfirm({title:`Delete ${name}?`,message:'This cannot be undone.',confirmLabel:'Delete'}))) return;
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/intermediary_people?id=eq.${id}`, {
       method: 'DELETE', headers: SB_HEADERS,
@@ -2075,6 +2075,49 @@ document.addEventListener('keydown', (e) => {
   if (renderFn) renderFn();
 })();
 </script>
+<!-- ── CONFIRM MODAL ─────────────────────────────────────────────── -->
+<div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(17,17,16,0.55);backdrop-filter:blur(3px);z-index:9000;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity 0.2s;" onclick="if(event.target===this)_confirmClose(false)">
+  <div class="confirm-box" style="background:#F5F2EB;border-radius:16px;width:min(400px,94vw);box-shadow:0 24px 64px rgba(0,0,0,0.3);transform:translateY(16px);transition:transform 0.2s;">
+    <div style="padding:24px 24px 18px;border-bottom:1px solid rgba(0,0,0,0.08);">
+      <div id="confirm-title" style="font-family:'DM Sans',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.02em;color:#111110;"></div>
+    </div>
+    <div style="padding:16px 24px 8px;">
+      <p id="confirm-message" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#555;line-height:1.6;margin:0;"></p>
+    </div>
+    <div style="padding:16px 24px 22px;display:flex;justify-content:flex-end;gap:8px;">
+      <button onclick="_confirmClose(false)" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:9px 18px;border-radius:100px;border:1.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;color:#555;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">Cancel</button>
+      <button id="confirm-ok-btn" onclick="_confirmClose(true)" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:9px 18px;border-radius:100px;border:none;background:#e05c5c;color:white;cursor:pointer;" onmouseover="this.style.background='#c94e4e'" onmouseout="this.style.background='#e05c5c'">Delete</button>
+    </div>
+  </div>
+</div>
+<script>
+let _confirmResolve = null;
+function showConfirm({ title = 'Are you sure?', message = '', confirmLabel = 'Delete' }) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    document.getElementById('confirm-ok-btn').textContent = confirmLabel;
+    const overlay = document.getElementById('confirm-overlay');
+    const box = overlay.querySelector('.confirm-box');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+      box.style.transform = 'translateY(0)';
+    });
+  });
+}
+function _confirmClose(result) {
+  const overlay = document.getElementById('confirm-overlay');
+  const box = overlay.querySelector('.confirm-box');
+  overlay.style.opacity = '0';
+  box.style.transform = 'translateY(16px)';
+  setTimeout(() => { overlay.style.display = 'none'; }, 200);
+  if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') _confirmClose(false); });
+</script>
+
   <script src="https://jungle-is-massive.github.io/hub/hub-overlay.js" defer></script>
 <script>
 
