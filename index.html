@@ -830,10 +830,33 @@ function showView(id, btn) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   const renders = {overview:renderOverview, dashboard:renderDashboard, tracking:renderTracking, people:renderPeople, roi:renderROI};
   if(renders[id]) renders[id]();
+  history.replaceState(null,'','#'+id);
 }
+
+// Hash routing — on load, jump to the right tab
+(function initHash_showView(){
+  const validTabs = ['overview','plan','dashboard','tracking','people','roi'];
+  const hash = window.location.hash.replace('#','');
+  if(validTabs.includes(hash)){
+    // Wait for DOM + gate to be cleared before switching
+    const trySwitch = (attempts) => {
+      const btn = document.querySelector(`.nav-tab[onclick*="'${hash}'"]`);
+      if(btn){ showView(hash, btn); }
+      else if(attempts > 0){ setTimeout(()=>trySwitch(attempts-1), 150); }
+    };
+    setTimeout(()=>trySwitch(20), 200);
+  }
+  window.addEventListener('hashchange', () => {
+    const h = window.location.hash.replace('#','');
+    if(validTabs.includes(h)){
+      const btn = document.querySelector(`.nav-tab[onclick*="'${h}'"]`);
+      if(btn) showView(h, btn);
+    }
+  });
+})();
 
 function switchPlanTab(id, btn) {
   document.querySelectorAll('#view-plan .vtab-btn').forEach(b => b.classList.remove('active'));
