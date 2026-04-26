@@ -251,9 +251,55 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
   .page, .page-narrow { padding: 40px 20px 80px; }
   .page-title { font-size: 26px; }
 }
+
+  /* PASSWORD GATE */
+  #gate-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #0E0E0E;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.3s;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+  #gate-overlay.hidden { opacity: 0; pointer-events: none; }
+  .gate-box { text-align: center; padding: 0 24px; }
+  .gate-wordmark { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: #F5F0E8; margin-bottom: 32px; }
+  .gate-wordmark span { color: #87FB66; }
+  .gate-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 14px; letter-spacing: 0.04em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+  .gate-input {
+    display: block; width: 220px; margin: 0 auto 14px;
+    background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px; color: #F5F0E8;
+    font-family: 'DM Mono', monospace; font-size: 18px;
+    letter-spacing: 0.15em; text-align: center;
+    padding: 12px 16px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .gate-input:focus { border-color: #87FB66; }
+  .gate-input.error { border-color: #FF6B4A; animation: shake 0.3s ease; }
+  .gate-btn {
+    background: #87FB66; color: #0E0E0E; border: none;
+    border-radius: 100px; padding: 11px 32px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s; width: 220px;
+  }
+  .gate-btn:hover { opacity: 0.85; }
+  .gate-error { font-size: 12px; color: #FF6B4A; margin-top: 12px; min-height: 18px; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
 </style>
 </head>
 <body>
+<div id="gate-overlay">
+  <div class="gate-box">
+    <div class="gate-wordmark">JUNGLE<span>.</span></div>
+    <div class="gate-label">Enter password to continue</div>
+    <input id="gate-input" class="gate-input" type="password" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkGate()">
+    <button class="gate-btn" onclick="checkGate()">Enter</button>
+    <div id="gate-error" class="gate-error"></div>
+  </div>
+</div>
+
 
 <!-- NAV -->
 <nav>
@@ -2030,5 +2076,30 @@ document.addEventListener('keydown', (e) => {
 })();
 </script>
   <script src="https://jungle-is-massive.github.io/hub/hub-overlay.js" defer></script>
+<script>
+
+  const GATE_PASSWORD = 'massive';
+  function checkGate() {
+    const val = document.getElementById('gate-input').value;
+    if (val === GATE_PASSWORD) {
+      sessionStorage.setItem('jc_auth', '1');
+      const overlay = document.getElementById('gate-overlay');
+      overlay.classList.add('hidden');
+      setTimeout(() => overlay.remove(), 350);
+    } else {
+      const input = document.getElementById('gate-input');
+      const err = document.getElementById('gate-error');
+      input.classList.add('error');
+      err.textContent = 'Incorrect password';
+      setTimeout(() => { input.classList.remove('error'); input.value = ''; err.textContent = ''; }, 1000);
+    }
+  }
+  if (sessionStorage.getItem('jc_auth') === '1') {
+    document.getElementById('gate-overlay').remove();
+  } else {
+    document.getElementById('gate-input').focus();
+  }
+
+</script>
 </body>
 </html>
