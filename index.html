@@ -852,7 +852,7 @@ function showView(id, btn) {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
-  const renders = {overview:renderOverview, dashboard:renderDashboard, tracking:renderTracking, people:renderPeople, roi:renderROI};
+  const renders = {overview:renderOverview, dashboard:renderDashboard, tracking:renderTracking, people:renderPeople, roi:renderROI, manage:renderManage};
   if(renders[id]) renders[id]();
   history.replaceState(null,'','#'+id);
 }
@@ -2146,8 +2146,9 @@ function renderManage() {
 
   if (sorted.length === 0) {
     loading.style.display = 'block';
-    loading.textContent = 'No intermediaries found.';
+    loading.textContent = DB_INTERMEDIARIES.length === 0 ? 'Loading intermediaries…' : 'No intermediaries found.';
     list.innerHTML = '';
+    list.style.display = 'none';
     return;
   }
 
