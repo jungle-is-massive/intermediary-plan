@@ -311,6 +311,7 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
     <button class="nav-tab" onclick="showView('tracking',this)">Tracking</button>
     <button class="nav-tab" onclick="showView('people',this)">People Map</button>
     <button class="nav-tab" onclick="showView('roi',this)">ROI Review</button>
+    <button class="nav-tab" onclick="showView('manage',this)">⚙ Manage</button>
   </div>
 </nav>
 
@@ -760,6 +761,24 @@ h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--black);
 </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════
+     MANAGE INTERMEDIARIES
+════════════════════════════════════════════ -->
+<div class="view" id="view-manage">
+<div class="page">
+  <div class="page-label">Admin</div>
+  <div class="flex-between" style="align-items:center;margin-bottom:4px">
+    <div class="page-title" style="margin-bottom:0">Manage Intermediaries</div>
+    <button onclick="openAddIntermediaryModal()" style="background:var(--green);color:var(--black);border:none;padding:9px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">+ Add intermediary</button>
+  </div>
+  <div class="page-sub" style="margin-bottom:28px">Add, edit, or remove intermediaries. Changes save directly to the database and update across all views.</div>
+
+  <div id="manage-loading" style="padding:40px;text-align:center;color:var(--grey-mid);font-size:13px">Loading intermediaries…</div>
+  <div id="manage-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════
 // SUPABASE CONFIG
@@ -787,6 +806,7 @@ const INTERMEDIARIES = [
 ];
 
 // ── Live data — loaded from Supabase on init
+let DB_INTERMEDIARIES = [];
 let TOUCHPOINTS = [];
 let BRIEFS = [];
 let EDITORIAL = [];
@@ -838,7 +858,7 @@ function showView(id, btn) {
 
 // Hash routing — on load, jump to the right tab
 (function initHash_showView(){
-  const validTabs = ['overview','plan','dashboard','tracking','people','roi'];
+  const validTabs = ['overview','plan','dashboard','tracking','people','roi','manage'];
   const hash = window.location.hash.replace('#','');
   if(validTabs.includes(hash)){
     // Wait for DOM + gate to be cleared before switching
@@ -1507,6 +1527,17 @@ async function saveOppModal(id){
 // SUPABASE — TRACKING DATA LOADERS
 // ═══════════════════════════════════════════════
 
+
+async function loadDBIntermediaries() {
+  try {
+    const r = await sbFetch('intermediaries?select=*&order=sort_order.asc');
+    if (!r.ok) return;
+    DB_INTERMEDIARIES = await r.json();
+  } catch(e) {
+    console.warn('Could not load intermediaries from DB:', e);
+  }
+}
+
 async function loadTrackingData() {
   const SB = SUPABASE_URL;
   const H = SB_HEADERS;
@@ -2085,6 +2116,7 @@ document.addEventListener('keydown', (e) => {
   renderDashboard();
 
   // Load all Supabase data in parallel
+  await loadDBIntermediaries();
   await Promise.all([loadPeople(), loadTrackingData()]);
 
   // Re-render all views with live data
@@ -2094,9 +2126,212 @@ document.addEventListener('keydown', (e) => {
   renderOverview();
   renderDashboard();
   // Re-render whichever tab is active
-  const renderFn = { tracking: renderTracking, people: renderPeople, roi: renderROI }[viewId];
+  const renderFn = { tracking: renderTracking, people: renderPeople, roi: renderROI, manage: renderManage }[viewId];
   if (renderFn) renderFn();
 })();
+
+
+// ═══════════════════════════════════════════════
+// MANAGE INTERMEDIARIES
+// ═══════════════════════════════════════════════
+
+function renderManage() {
+  const loading = document.getElementById('manage-loading');
+  const list = document.getElementById('manage-list');
+  if (!loading || !list) return;
+
+  // Sort by sort_order
+  const sorted = [...DB_INTERMEDIARIES].sort((a,b) => (a.sort_order||99) - (b.sort_order||99));
+
+  if (sorted.length === 0) {
+    loading.style.display = 'block';
+    loading.textContent = 'No intermediaries found.';
+    list.innerHTML = '';
+    return;
+  }
+
+  loading.style.display = 'none';
+  list.style.display = 'flex';
+
+  const statusColors = {
+    'Active':'#8BFF57','In progress':'#8BFF57','Supplier':'#60d0ff',
+    'Warm':'#ffd060','Not started yet':'#e0e0e0','Early':'#e0e0e0'
+  };
+
+  list.innerHTML = sorted.map(int => {
+    const sc = statusColors[int.status] || '#e0e0e0';
+    const cost = int.annual_cost_estimate ? '£' + Number(int.annual_cost_estimate).toLocaleString('en-GB') : '—';
+    const avgVal = int.avg_pitch_value ? '£' + Number(int.avg_pitch_value).toLocaleString('en-GB') : '—';
+    return `<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">${esc(int.name)}</span>
+          <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 9px;border-radius:100px;background:${sc}20;color:${sc.replace('20','')};border:1px solid ${sc}40">${esc(int.status||'')}</span>
+          ${int.website_url ? `<a href="${esc(int.website_url)}" target="_blank" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-decoration:none;border-bottom:1px solid var(--border)">↗ website</a>` : ''}
+        </div>
+        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">${esc(int.stage || '—')}</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Annual cost: <strong style="color:var(--black)">${cost}</strong></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Avg pitch value: <strong style="color:var(--black)">${avgVal}</strong></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Pitch target: <strong style="color:var(--black)">${esc(int.pitch_target||'—')}</strong></span>
+        </div>
+        ${int.commercial_model ? `<div style="font-size:11px;color:var(--grey-mid);margin-top:8px;line-height:1.5;max-width:600px">${esc(int.commercial_model.slice(0,200))}${int.commercial_model.length > 200 ? '…' : ''}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <button onclick="openEditIntermediaryModal('${int.id}')" style="padding:7px 14px;border:1.5px solid var(--border);border-radius:100px;background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Edit</button>
+        <button onclick="deleteIntermediary('${int.id}','${esc(int.name)}')" style="padding:7px 14px;border:1.5px solid #fcc;border-radius:100px;background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#c00">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const INT_FIELDS = [
+  { key:'name', label:'Name', type:'text', required:true },
+  { key:'status', label:'Status', type:'select', options:['Active','In progress','Supplier','Warm','Not started yet','Early'], required:true },
+  { key:'stage', label:'Current stage / notes', type:'textarea' },
+  { key:'goal', label:'Goal', type:'textarea' },
+  { key:'website_url', label:'Website URL', type:'url' },
+  { key:'annual_cost_estimate', label:'Annual cost (£, number)', type:'number' },
+  { key:'avg_pitch_value', label:'Avg pitch value (£, number)', type:'number' },
+  { key:'pitch_target', label:'Pitch target (number)', type:'text' },
+  { key:'cost_to_jungle', label:'Cost to Jungle (description)', type:'textarea' },
+  { key:'commercial_model', label:'Commercial model', type:'textarea' },
+  { key:'sort_order', label:'Sort order (lower = first)', type:'number' },
+];
+
+function openAddIntermediaryModal() {
+  _openIntermediaryModal(null);
+}
+
+function openEditIntermediaryModal(id) {
+  const int = DB_INTERMEDIARIES.find(i => i.id === id);
+  if (!int) return;
+  _openIntermediaryModal(int);
+}
+
+function _openIntermediaryModal(int) {
+  const isEdit = !!int;
+  const existing = document.getElementById('int-mgr-modal-wrap');
+  if (existing) existing.remove();
+
+  const wrap = document.createElement('div');
+  wrap.id = 'int-mgr-modal-wrap';
+  wrap.style.cssText = 'position:fixed;inset:0;background:rgba(17,17,16,0.55);backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.15s';
+  wrap.onclick = e => { if(e.target === wrap) wrap.remove(); };
+
+  const fieldsHtml = INT_FIELDS.map(f => {
+    const val = int ? (int[f.key] ?? '') : '';
+    const req = f.required ? 'required' : '';
+    let input;
+    if (f.type === 'select') {
+      input = `<select id="imf-${f.key}" ${req} style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:#fff">
+        <option value="">— select —</option>
+        ${f.options.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('')}
+      </select>`;
+    } else if (f.type === 'textarea') {
+      input = `<textarea id="imf-${f.key}" rows="3" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;box-sizing:border-box">${esc(String(val))}</textarea>`;
+    } else {
+      input = `<input id="imf-${f.key}" type="${f.type}" ${req} value="${esc(String(val))}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;box-sizing:border-box">`;
+    }
+    return `<div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--grey-mid)">${f.label}${f.required?' *':''}</label>
+      ${input}
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div style="background:#F5F2EB;border-radius:16px;width:min(580px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+      <div style="padding:24px 24px 16px;border-bottom:1px solid rgba(0,0,0,0.08);position:sticky;top:0;background:#F5F2EB;z-index:1">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">${isEdit ? 'Edit: ' + esc(int.name) : 'Add Intermediary'}</div>
+      </div>
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        ${fieldsHtml}
+        <div id="imf-error" style="color:#c00;font-size:12px;display:none"></div>
+      </div>
+      <div style="padding:12px 24px 22px;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#F5F2EB;border-top:1px solid rgba(0,0,0,0.08)">
+        <button onclick="document.getElementById('int-mgr-modal-wrap').remove()" style="padding:9px 18px;border:1.5px solid rgba(0,0,0,0.15);border-radius:100px;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:#555">Cancel</button>
+        <button onclick="_saveIntermediary(${isEdit ? `'${int.id}'` : 'null'})" style="padding:9px 22px;border:none;border-radius:100px;background:var(--green);color:var(--black);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer">${isEdit ? 'Save changes' : 'Add intermediary'}</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(wrap);
+}
+
+async function _saveIntermediary(id) {
+  const data = {};
+  for (const f of INT_FIELDS) {
+    const el = document.getElementById('imf-' + f.key);
+    if (!el) continue;
+    let val = el.value.trim();
+    if (f.type === 'number') val = val === '' ? null : Number(val);
+    if (f.required && !val) {
+      const err = document.getElementById('imf-error');
+      err.textContent = f.label + ' is required.';
+      err.style.display = 'block';
+      el.focus();
+      return;
+    }
+    data[f.key] = val === '' ? null : val;
+  }
+
+  const saveBtn = document.querySelector('#int-mgr-modal-wrap button:last-child');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+  try {
+    let res;
+    if (id) {
+      // Update
+      data.updated_at = new Date().toISOString();
+      res = await sbFetch(`intermediaries?id=eq.${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+        headers: { 'Prefer': 'return=representation' }
+      });
+    } else {
+      // Insert
+      res = await sbFetch('intermediaries', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Prefer': 'return=representation' }
+      });
+    }
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(txt);
+    }
+
+    // Reload intermediaries and re-render
+    await loadDBIntermediaries();
+    document.getElementById('int-mgr-modal-wrap')?.remove();
+    renderManage();
+
+  } catch(e) {
+    const err = document.getElementById('imf-error');
+    if(err){ err.textContent = 'Error: ' + e.message; err.style.display='block'; }
+    if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = id ? 'Save changes' : 'Add intermediary'; }
+  }
+}
+
+async function deleteIntermediary(id, name) {
+  const ok = await showConfirm({
+    title: 'Delete intermediary?',
+    message: `This will permanently delete "${name}" and cannot be undone.`,
+    confirmLabel: 'Delete'
+  });
+  if (!ok) return;
+
+  try {
+    const res = await sbFetch(`intermediaries?id=eq.${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(await res.text());
+    await loadDBIntermediaries();
+    renderManage();
+  } catch(e) {
+    alert('Error deleting: ' + e.message);
+  }
+}
+
+
 </script>
 <!-- ── CONFIRM MODAL ─────────────────────────────────────────────── -->
 <div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(17,17,16,0.55);backdrop-filter:blur(3px);z-index:9000;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity 0.2s;" onclick="if(event.target===this)_confirmClose(false)">
