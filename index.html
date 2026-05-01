@@ -791,7 +791,8 @@ const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE
 // DATA
 // ═══════════════════════════════════════════════
 
-const INTERMEDIARIES = [
+// INTERMEDIARIES array replaced by DB_INTERMEDIARIES loaded from Supabase
+const _LEGACY_INTERMEDIARIES = [
   { id:'aar', name:'AAR', tier:1, paid:true, status:'Active', fee:8500, pitches_expected:4, avg_value:280000, rel_strength:3, last_touchpoint:'2026-03-28', next_action:'Send Social Maturity POV piece', owner:'Coris', notes:'Good initial meeting. Need to get in front of Helen and James.' },
   { id:'ingenuity', name:'Ingenuity+', tier:1, paid:true, status:'Active', fee:6000, pitches_expected:3, avg_value:250000, rel_strength:2, last_touchpoint:'2026-03-14', next_action:'Follow up on MAD//Meets intro', owner:'Coris', notes:'Met at MAD//Meets. Strong initial interest in social-first angle.' },
   { id:'creativebrief', name:'Creativebrief', tier:1, paid:true, status:'Active', fee:7200, pitches_expected:5, avg_value:150000, rel_strength:4, last_touchpoint:'2026-04-02', next_action:'Submit case study for Bite editorial', owner:'Coris', notes:'Editorial relationship as well as pitch. Strong fit for our positioning.' },
@@ -826,7 +827,7 @@ function sbFetch(path, opts={}) {
 
 function fmt(n){ if(!n) return '—'; return '£'+Math.round(n).toLocaleString('en-GB'); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function getOrg(id){ return INTERMEDIARIES.find(x=>x.id===id)||{name:id}; }
+function getOrg(id){ return DB_INTERMEDIARIES.find(x=>x.slug===id||x.id===id)||{name:id}; }
 function daysSince(d){ if(!d) return 999; return Math.floor((Date.now()-new Date(d))/(1000*60*60*24)); }
 
 function strengthHtml(n, max=5) {
@@ -897,19 +898,19 @@ function switchTrackTab(id, btn) {
 // ═══════════════════════════════════════════════
 function renderOverview() {
   const conv = 0.3;
-  const totalProjected = INTERMEDIARIES.reduce((s,i)=>s+Math.round(i.pitches_expected*i.avg_value*conv),0);
-  const totalFees = INTERMEDIARIES.filter(i=>i.paid).reduce((s,i)=>s+i.fee,0);
-  const paidCount = INTERMEDIARIES.filter(i=>i.paid).length;
-  const warmOrActive = INTERMEDIARIES.filter(i=>i.rel_strength>=3).length;
+  const totalProjected = DB_INTERMEDIARIES.reduce((s,i)=>s+Math.round(i.pitches_expected*i.avg_pitch_value*conv),0);
+  const totalFees = DB_INTERMEDIARIES.filter(i=>i.paid).reduce((s,i)=>s+i.fee,0);
+  const paidCount = DB_INTERMEDIARIES.filter(i=>i.paid).length;
+  const warmOrActive = DB_INTERMEDIARIES.filter(i=>i.rel_strength>=3).length;
 
   document.getElementById('overview-stats').innerHTML = [
-    {label:'Intermediaries tracked',value:INTERMEDIARIES.length,sub:`${paidCount} paid, ${INTERMEDIARIES.length-paidCount} unpaid`},
+    {label:'Intermediaries tracked',value:DB_INTERMEDIARIES.length,sub:`${paidCount} paid, ${DB_INTERMEDIARIES.length-paidCount} unpaid`},
     {label:'Projected pipeline',value:fmt(totalProjected),sub:'At 30% conversion',cls:'green'},
     {label:'Total annual fees',value:fmt(totalFees),sub:'Paid partnerships only'},
-    {label:'Strong relationships',value:warmOrActive+' / '+INTERMEDIARIES.length,sub:'Strength score 3+',cls:'amber'},
+    {label:'Strong relationships',value:warmOrActive+' / '+DB_INTERMEDIARIES.length,sub:'Strength score 3+',cls:'amber'},
   ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
 
-  document.getElementById('overview-int-grid').innerHTML = INTERMEDIARIES.map(i=>`
+  document.getElementById('overview-int-grid').innerHTML = DB_INTERMEDIARIES.map(i=>`
     <div class="int-card" onclick="goToInt('${i.id}')">
       <div class="flex-between">
         <div class="int-card-name">${esc(i.name)}</div>
@@ -970,8 +971,8 @@ function renderDashboard() {
   const conv = (parseFloat(document.getElementById('conv-rate')?.value)||30)/100;
   let totalFees=0, totalPitches=0, totalProjected=0;
 
-  document.getElementById('pipeline-body').innerHTML = INTERMEDIARIES.map(i=>{
-    const proj = Math.round(i.pitches_expected * i.avg_value * conv);
+  document.getElementById('pipeline-body').innerHTML = DB_INTERMEDIARIES.map(i=>{
+    const proj = Math.round(i.pitches_expected * i.avg_pitch_value * conv);
     if(i.paid) totalFees += i.fee;
     totalPitches += i.pitches_expected;
     totalProjected += proj;
@@ -981,7 +982,7 @@ function renderDashboard() {
       <td>${statusPill(i.status)}</td>
       <td class="right">${i.isGroup ? '<span class="muted">—</span>' : (i.paid ? fmt(i.fee) : '<span class="muted">Unpaid</span>')}</td>
       <td class="right mono">${i.pitches_expected}</td>
-      <td class="right">${fmt(i.avg_value)}</td>
+      <td class="right">${fmt(i.avg_pitch_value)}</td>
       <td class="right" style="font-weight:700;color:var(--green-dim)">${fmt(proj)}</td>
       <td class="right">${strengthHtml(i.rel_strength)}</td>
     </tr>`;
@@ -1013,7 +1014,7 @@ function renderDashboard() {
     <div class="stat-card"><div class="stat-label">${type}</div><div class="stat-value">${count}</div><div class="stat-sub">touchpoints total</div></div>`).join('');
 
   // Dormant (>30 days)
-  const dormant = INTERMEDIARIES.filter(i=>daysSince(i.last_touchpoint)>30).sort((a,b)=>daysSince(b.last_touchpoint)-daysSince(a.last_touchpoint));
+  const dormant = DB_INTERMEDIARIES.filter(i=>daysSince(i.last_touchpoint)>30).sort((a,b)=>daysSince(b.last_touchpoint)-daysSince(a.last_touchpoint));
   document.getElementById('dormant-body').innerHTML = dormant.length
     ? dormant.map(i=>`<tr>
         <td style="font-weight:600">${esc(i.name)}</td>
@@ -1119,7 +1120,7 @@ function renderPeople() {
   btns.innerHTML = `
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex:1">
       <button class="pill ${!activePeopleFilter?'pill-black':'pill-grey'}" style="cursor:pointer;border:none;font-family:'DM Mono',monospace" onclick="filterPeople(null)">All</button>` +
-    INTERMEDIARIES.map(i=>`<button class="pill ${activePeopleFilter===i.id?'pill-black':'pill-grey'}" data-org="${i.id}" style="cursor:pointer;border:none;font-family:'DM Mono',monospace" onclick="filterPeople('${i.id}')">${esc(i.name)}</button>`).join('') +
+    DB_INTERMEDIARIES.map(i=>`<button class="pill ${activePeopleFilter===i.id?'pill-black':'pill-grey'}" data-org="${i.id}" style="cursor:pointer;border:none;font-family:'DM Mono',monospace" onclick="filterPeople('${i.id}')">${esc(i.name)}</button>`).join('') +
     `</div>
     <button onclick="openPersonModal()" style="background:var(--green);color:var(--black);border:none;padding:9px 16px;border-radius:100px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-0.01em;white-space:nowrap;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.background='var(--green-dim)'" onmouseout="this.style.background='var(--green)'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -1132,7 +1133,7 @@ function renderPeople() {
   btns.style.alignItems = 'center';
   btns.style.gap = '16px';
 
-  const orgs = activePeopleFilter ? INTERMEDIARIES.filter(i=>i.id===activePeopleFilter) : INTERMEDIARIES;
+  const orgs = activePeopleFilter ? DB_INTERMEDIARIES.filter(i=>i.id===activePeopleFilter||i.slug===activePeopleFilter) : DB_INTERMEDIARIES;
   const sections = document.getElementById('people-sections');
   const orgSections = orgs.map(org=>{
     const people = PEOPLE.filter(p=>p.org_id===org.id);
@@ -1218,7 +1219,7 @@ function statusLabel(s) {
   return {not_started:'Not started',contacted:'Contacted',in_progress:'In progress',warm:'Warm',stalled:'Stalled'}[s]||s||'Not started';
 }
 
-function getOrg(id) { return INTERMEDIARIES.find(i=>i.id===id)||{name:id||'Unknown'}; }
+function getOrg(id) { return DB_INTERMEDIARIES.find(i=>i.slug===id||i.id===id)||{name:id||'Unknown'}; }
 
 function renderPeopleList(filteredPeople) {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1295,7 +1296,7 @@ async function renderROI() {
   const opps = Array.isArray(OPPS_DATA) ? OPPS_DATA : [];
   let totalFees=0, totalOpps=0, totalWins=0, totalRevenue=0;
 
-  document.getElementById('roi-body').innerHTML = INTERMEDIARIES.map(i=>{
+  document.getElementById('roi-body').innerHTML = DB_INTERMEDIARIES.map(i=>{
     const myOpps = opps.filter(o=>o.source_name===i.id || o.source_name===i.name);
     const wins   = myOpps.filter(o=>o.outcome==='Won');
     const rev    = wins.reduce((s,o)=>s+(o.value||0),0);
@@ -1667,7 +1668,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ─── TOUCHPOINTS CRUD ────────────────────────────────────────────
-const ORG_OPTIONS = () => INTERMEDIARIES.map(i=>({v:i.id,l:i.name}));
+const ORG_OPTIONS = () => DB_INTERMEDIARIES.map(i=>({v:i.slug||i.id,l:i.name}));
 const TP_TYPES = ['Meeting','Coffee','Call','Email','Event','Intro Call','Intro Meeting','Roundtable','Other'];
 const OWNERS   = ['Coris','Jade','Mal','Oscar','Ro'];
 
@@ -1895,7 +1896,7 @@ function openPersonModal(id) {
   const isEdit = !!person;
 
   // Build org options — grouped by tier
-  const orgOptions = INTERMEDIARIES.map(i =>
+  const orgOptions = DB_INTERMEDIARIES.map(i =>
     `<option value="${i.id}"${person && person.org_id === i.id ? ' selected' : ''}>${esc(i.name)}${i.isGroup ? ' — Individual Consultants' : ' (Tier ' + i.tier + ')'}</option>`
   ).join('');
 
@@ -2126,7 +2127,7 @@ document.addEventListener('keydown', (e) => {
   renderOverview();
   renderDashboard();
   // Re-render whichever tab is active
-  const renderFn = { tracking: renderTracking, people: renderPeople, roi: renderROI, manage: renderManage }[viewId];
+  const renderFn = { overview: renderOverview, tracking: renderTracking, people: renderPeople, roi: renderROI, manage: renderManage, dashboard: renderDashboard }[viewId];
   if (renderFn) renderFn();
 })();
 
@@ -2160,44 +2161,79 @@ function renderManage() {
 
   list.innerHTML = sorted.map(int => {
     const sc = statusColors[int.status] || '#e0e0e0';
-    const cost = int.annual_cost_estimate ? '£' + Number(int.annual_cost_estimate).toLocaleString('en-GB') : '—';
+    const cost = int.annual_cost_estimate ? '£' + Number(int.annual_cost_estimate).toLocaleString('en-GB') : (int.fee ? '£' + Number(int.fee).toLocaleString('en-GB') : '—');
     const avgVal = int.avg_pitch_value ? '£' + Number(int.avg_pitch_value).toLocaleString('en-GB') : '—';
-    return `<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start">
+    const dots = [1,2,3,4,5].map(n=>`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${n<=(int.rel_strength||0)?'var(--green)':'var(--border)'}"></span>`).join('');
+    const lastTp = int.last_touchpoint ? daysSince(int.last_touchpoint) + 'd ago' : 'Never';
+    const tpColor = int.last_touchpoint && daysSince(int.last_touchpoint) > 30 ? 'var(--red)' : 'var(--grey-mid)';
+    return `<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start">
       <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
           <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">${esc(int.name)}</span>
-          <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 9px;border-radius:100px;background:${sc}20;color:${sc.replace('20','')};border:1px solid ${sc}40">${esc(int.status||'')}</span>
-          ${int.website_url ? `<a href="${esc(int.website_url)}" target="_blank" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-decoration:none;border-bottom:1px solid var(--border)">↗ website</a>` : ''}
+          <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 9px;border-radius:100px;background:#F5F2EB;border:1px solid var(--border)">${esc(int.status||'')}</span>
+          ${int.tier ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid)">Tier ${int.tier}</span>` : ''}
+          ${int.owner ? `<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid)">Owner: ${esc(int.owner)}</span>` : ''}
+          ${int.website_url ? `<a href="${esc(int.website_url)}" target="_blank" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--grey-mid);text-decoration:none;border-bottom:1px solid var(--border)">↗ site</a>` : ''}
         </div>
-        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">${esc(int.stage || '—')}</div>
-        <div style="display:flex;gap:20px;flex-wrap:wrap">
-          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Annual cost: <strong style="color:var(--black)">${cost}</strong></span>
-          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Avg pitch value: <strong style="color:var(--black)">${avgVal}</strong></span>
-          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Pitch target: <strong style="color:var(--black)">${esc(int.pitch_target||'—')}</strong></span>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:8px">
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Cost: <strong style="color:var(--black)">${cost}</strong></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Avg value: <strong style="color:var(--black)">${avgVal}</strong></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Pitches exp: <strong style="color:var(--black)">${int.pitches_expected||'—'}</strong></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--grey-mid)">Rel: <span style="display:inline-flex;gap:3px;vertical-align:middle">${dots}</span></span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:${tpColor}">Last contact: <strong>${lastTp}</strong></span>
         </div>
-        ${int.commercial_model ? `<div style="font-size:11px;color:var(--grey-mid);margin-top:8px;line-height:1.5;max-width:600px">${esc(int.commercial_model.slice(0,200))}${int.commercial_model.length > 200 ? '…' : ''}</div>` : ''}
+        ${int.next_action ? `<div style="font-size:12px;color:#333;margin-bottom:4px"><strong>Next:</strong> ${esc(int.next_action)}</div>` : ''}
+        ${int.stage ? `<div style="font-size:11px;color:var(--grey-mid);line-height:1.5">${esc(int.stage.slice(0,160))}${int.stage.length>160?'…':''}</div>` : ''}
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
-        <button onclick="openEditIntermediaryModal('${int.id}')" style="padding:7px 14px;border:1.5px solid var(--border);border-radius:100px;background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Edit</button>
-        <button onclick="deleteIntermediary('${int.id}','${esc(int.name)}')" style="padding:7px 14px;border:1.5px solid #fcc;border-radius:100px;background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#c00">Delete</button>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0">
+        <button onclick="openEditIntermediaryModal('${int.id}')" style="padding:7px 16px;border:none;border-radius:100px;background:var(--green);color:var(--black);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Edit / Docs</button>
+        <button onclick="deleteIntermediary('${int.id}','${esc(int.name)}')" style="padding:6px 14px;border:1.5px solid #fcc;border-radius:100px;background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:#c00">Delete</button>
       </div>
     </div>`;
   }).join('');
 }
 
-const INT_FIELDS = [
-  { key:'name', label:'Name', type:'text', required:true },
-  { key:'status', label:'Status', type:'select', options:['Active','In progress','Supplier','Warm','Not started yet','Early'], required:true },
-  { key:'stage', label:'Current stage / notes', type:'textarea' },
-  { key:'goal', label:'Goal', type:'textarea' },
-  { key:'website_url', label:'Website URL', type:'url' },
-  { key:'annual_cost_estimate', label:'Annual cost (£, number)', type:'number' },
-  { key:'avg_pitch_value', label:'Avg pitch value (£, number)', type:'number' },
-  { key:'pitch_target', label:'Pitch target (number)', type:'text' },
-  { key:'cost_to_jungle', label:'Cost to Jungle (description)', type:'textarea' },
-  { key:'commercial_model', label:'Commercial model', type:'textarea' },
-  { key:'sort_order', label:'Sort order (lower = first)', type:'number' },
+// Field groups for the edit modal
+const INT_FIELD_GROUPS = [
+  {
+    title: 'Basic Info',
+    fields: [
+      { key:'name', label:'Name', type:'text', required:true },
+      { key:'slug', label:'Slug (unique ID, no spaces)', type:'text' },
+      { key:'status', label:'Status', type:'select', options:['Active','In progress','Supplier','Warm','Not started yet','Early'], required:true },
+      { key:'website_url', label:'Website URL', type:'url' },
+      { key:'sort_order', label:'Sort order (lower = first)', type:'number' },
+    ]
+  },
+  {
+    title: 'Relationship',
+    fields: [
+      { key:'tier', label:'Tier (1 = top priority)', type:'select', options:['1','2','3'] },
+      { key:'owner', label:'Owner', type:'select', options:['Coris','Jade','Ro','Mal'] },
+      { key:'rel_strength', label:'Relationship strength (1–5)', type:'select', options:['1','2','3','4','5'] },
+      { key:'last_touchpoint', label:'Last touchpoint date', type:'date' },
+      { key:'next_action', label:'Next action', type:'text' },
+      { key:'notes', label:'Notes', type:'textarea' },
+      { key:'stage', label:'Current stage / progress', type:'textarea' },
+      { key:'goal', label:'Goal', type:'textarea' },
+    ]
+  },
+  {
+    title: 'Commercial',
+    fields: [
+      { key:'paid', label:'Paid partnership?', type:'select', options:['true','false'] },
+      { key:'fee', label:'Annual fee (£)', type:'number' },
+      { key:'annual_cost_estimate', label:'Annual cost estimate (£)', type:'number' },
+      { key:'avg_pitch_value', label:'Avg pitch value (£)', type:'number' },
+      { key:'pitches_expected', label:'Pitches expected per year', type:'number' },
+      { key:'pitch_target', label:'Pitch target', type:'text' },
+      { key:'cost_to_jungle', label:'Cost to Jungle (description)', type:'textarea' },
+      { key:'commercial_model', label:'Commercial model', type:'textarea' },
+    ]
+  }
 ];
+// Flat list for save iteration
+const INT_FIELDS = INT_FIELD_GROUPS.flatMap(g => g.fields);
 
 function openAddIntermediaryModal() {
   _openIntermediaryModal(null);
@@ -2209,44 +2245,72 @@ function openEditIntermediaryModal(id) {
   _openIntermediaryModal(int);
 }
 
+function _buildFieldInput(f, val) {
+  const req = f.required ? 'required' : '';
+  const base = `width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;box-sizing:border-box`;
+  if (f.type === 'select') {
+    const strVal = String(val ?? '');
+    return `<select id="imf-${f.key}" ${req} style="${base};background:#fff">
+      <option value="">— select —</option>
+      ${f.options.map(o => `<option value="${o}" ${strVal===o?'selected':''}>${o}</option>`).join('')}
+    </select>`;
+  }
+  if (f.type === 'textarea') {
+    return `<textarea id="imf-${f.key}" rows="3" style="${base};resize:vertical">${esc(String(val ?? ''))}</textarea>`;
+  }
+  return `<input id="imf-${f.key}" type="${f.type}" ${req} value="${esc(String(val ?? ''))}" style="${base}">`;
+}
+
 function _openIntermediaryModal(int) {
   const isEdit = !!int;
   const existing = document.getElementById('int-mgr-modal-wrap');
   if (existing) existing.remove();
+
+  const groupsHtml = INT_FIELD_GROUPS.map(g => {
+    const fieldsHtml = g.fields.map(f => {
+      const val = int ? (int[f.key] ?? '') : '';
+      return `<div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--grey-mid)">${f.label}${f.required?' *':''}</label>
+        ${_buildFieldInput(f, val)}
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:6px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-dim);padding:14px 0 10px;border-bottom:1.5px solid var(--border);margin-bottom:14px">${g.title}</div>
+      <div style="display:flex;flex-direction:column;gap:12px">${fieldsHtml}</div>
+    </div>`;
+  }).join('');
+
+  // Document upload section (only shown when editing)
+  const docsSection = isEdit ? `
+    <div style="margin-bottom:6px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-dim);padding:14px 0 10px;border-bottom:1.5px solid var(--border);margin-bottom:14px">Documents</div>
+      <div id="imf-docs-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--grey-mid)">Loading…</div>
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;font-size:13px;color:var(--grey-mid);transition:border-color 0.15s"
+        onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:18px">📎</span>
+        <span id="imf-upload-label">Click to upload a document (PDF, Word, Excel, PNG, JPG…)</span>
+        <input type="file" id="imf-file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.txt,.csv" style="display:none" onchange="_handleDocUpload('${int.id}')">
+      </label>
+      <div id="imf-upload-progress" style="font-size:11px;color:var(--grey-mid);margin-top:6px;display:none"></div>
+    </div>` : '';
 
   const wrap = document.createElement('div');
   wrap.id = 'int-mgr-modal-wrap';
   wrap.style.cssText = 'position:fixed;inset:0;background:rgba(17,17,16,0.55);backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.15s';
   wrap.onclick = e => { if(e.target === wrap) wrap.remove(); };
 
-  const fieldsHtml = INT_FIELDS.map(f => {
-    const val = int ? (int[f.key] ?? '') : '';
-    const req = f.required ? 'required' : '';
-    let input;
-    if (f.type === 'select') {
-      input = `<select id="imf-${f.key}" ${req} style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:#fff">
-        <option value="">— select —</option>
-        ${f.options.map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('')}
-      </select>`;
-    } else if (f.type === 'textarea') {
-      input = `<textarea id="imf-${f.key}" rows="3" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;box-sizing:border-box">${esc(String(val))}</textarea>`;
-    } else {
-      input = `<input id="imf-${f.key}" type="${f.type}" ${req} value="${esc(String(val))}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;box-sizing:border-box">`;
-    }
-    return `<div style="display:flex;flex-direction:column;gap:4px">
-      <label style="font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--grey-mid)">${f.label}${f.required?' *':''}</label>
-      ${input}
-    </div>`;
-  }).join('');
-
   wrap.innerHTML = `
-    <div style="background:#F5F2EB;border-radius:16px;width:min(580px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
-      <div style="padding:24px 24px 16px;border-bottom:1px solid rgba(0,0,0,0.08);position:sticky;top:0;background:#F5F2EB;z-index:1">
+    <div style="background:#F5F2EB;border-radius:16px;width:min(640px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+      <div style="padding:24px 24px 16px;border-bottom:1px solid rgba(0,0,0,0.08);position:sticky;top:0;background:#F5F2EB;z-index:1;display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em">${isEdit ? 'Edit: ' + esc(int.name) : 'Add Intermediary'}</div>
+        <button onclick="document.getElementById('int-mgr-modal-wrap').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--grey-mid);padding:4px 8px;border-radius:6px" title="Close">✕</button>
       </div>
-      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
-        ${fieldsHtml}
-        <div id="imf-error" style="color:#c00;font-size:12px;display:none"></div>
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:4px">
+        ${groupsHtml}
+        ${docsSection}
+        <div id="imf-error" style="color:#c00;font-size:12px;display:none;margin-top:8px"></div>
       </div>
       <div style="padding:12px 24px 22px;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#F5F2EB;border-top:1px solid rgba(0,0,0,0.08)">
         <button onclick="document.getElementById('int-mgr-modal-wrap').remove()" style="padding:9px 18px;border:1.5px solid rgba(0,0,0,0.15);border-radius:100px;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:#555">Cancel</button>
@@ -2255,6 +2319,9 @@ function _openIntermediaryModal(int) {
     </div>`;
 
   document.body.appendChild(wrap);
+
+  // Load docs if editing
+  if (isEdit) _loadIntDocs(int.id);
 }
 
 async function _saveIntermediary(id) {
@@ -2264,6 +2331,8 @@ async function _saveIntermediary(id) {
     if (!el) continue;
     let val = el.value.trim();
     if (f.type === 'number') val = val === '' ? null : Number(val);
+    if (f.key === 'paid') val = val === 'true' ? true : val === 'false' ? false : null;
+    if (f.key === 'tier' || f.key === 'rel_strength') val = val === '' ? null : Number(val);
     if (f.required && !val) {
       const err = document.getElementById('imf-error');
       err.textContent = f.label + ' is required.';
@@ -2310,6 +2379,130 @@ async function _saveIntermediary(id) {
     const err = document.getElementById('imf-error');
     if(err){ err.textContent = 'Error: ' + e.message; err.style.display='block'; }
     if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = id ? 'Save changes' : 'Add intermediary'; }
+  }
+}
+
+
+// ─── Document management ─────────────────────────────────────────────
+async function _loadIntDocs(intId) {
+  const list = document.getElementById('imf-docs-list');
+  if (!list) return;
+  try {
+    const r = await sbFetch(`intermediary_documents?intermediary_id=eq.${intId}&order=uploaded_at.desc`);
+    const docs = r.ok ? await r.json() : [];
+    if (docs.length === 0) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--grey-mid);padding:4px 0">No documents uploaded yet.</div>';
+      return;
+    }
+    list.innerHTML = docs.map(d => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:8px">
+        <span style="font-size:16px">${_docIcon(d.mime_type)}</span>
+        <div style="flex:1;min-width:0">
+          <a href="${SUPABASE_URL}/storage/v1/object/public/intermediary-docs/${d.file_path}" target="_blank"
+            style="font-size:13px;font-weight:600;color:var(--black);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block"
+            title="${esc(d.file_name)}">${esc(d.file_name)}</a>
+          <div style="font-size:10px;color:var(--grey-mid);font-family:'DM Mono',monospace">${_fmtSize(d.file_size)} · ${d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString('en-GB') : ''}</div>
+        </div>
+        <button onclick="_deleteDoc('${d.id}','${d.file_path}','${esc(d.file_name)}')" title="Delete" style="background:none;border:none;cursor:pointer;color:var(--grey-mid);font-size:16px;padding:2px 6px;border-radius:4px" onmouseover="this.style.color='#c00'" onmouseout="this.style.color='var(--grey-mid)'">✕</button>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--grey-mid)">Could not load documents.</div>';
+  }
+}
+
+function _docIcon(mime) {
+  if (!mime) return '📄';
+  if (mime.includes('pdf')) return '📕';
+  if (mime.includes('word') || mime.includes('document')) return '📘';
+  if (mime.includes('sheet') || mime.includes('excel')) return '📗';
+  if (mime.includes('presentation') || mime.includes('powerpoint')) return '📙';
+  if (mime.includes('image')) return '🖼';
+  return '📄';
+}
+
+function _fmtSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + 'B';
+  if (bytes < 1024*1024) return Math.round(bytes/1024) + 'KB';
+  return (bytes/(1024*1024)).toFixed(1) + 'MB';
+}
+
+async function _handleDocUpload(intId) {
+  const input = document.getElementById('imf-file-input');
+  const progress = document.getElementById('imf-upload-progress');
+  const label = document.getElementById('imf-upload-label');
+  if (!input || !input.files.length) return;
+
+  const files = Array.from(input.files);
+  progress.style.display = 'block';
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    progress.textContent = `Uploading ${i+1}/${files.length}: ${file.name}…`;
+
+    const filePath = `${intId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+    try {
+      // Upload to storage
+      const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/intermediary-docs/${filePath}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': file.type || 'application/octet-stream',
+        },
+        body: file
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.text();
+        console.error('Upload error:', err);
+        progress.textContent = `Failed to upload ${file.name}: ${err}`;
+        continue;
+      }
+
+      // Save metadata to DB
+      await sbFetch('intermediary_documents', {
+        method: 'POST',
+        body: JSON.stringify({
+          intermediary_id: intId,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          mime_type: file.type
+        })
+      });
+
+    } catch(e) {
+      progress.textContent = `Error uploading ${file.name}: ${e.message}`;
+    }
+  }
+
+  progress.textContent = `✓ ${files.length} file${files.length>1?'s':''} uploaded`;
+  label.textContent = 'Click to upload more documents';
+  input.value = '';
+  setTimeout(() => { progress.style.display = 'none'; }, 2000);
+  _loadIntDocs(intId);
+}
+
+async function _deleteDoc(docId, filePath, fileName) {
+  const ok = await showConfirm({ title: 'Delete document?', message: `Remove "${fileName}"?`, confirmLabel: 'Delete' });
+  if (!ok) return;
+
+  try {
+    // Delete from storage
+    await fetch(`${SUPABASE_URL}/storage/v1/object/intermediary-docs/${filePath}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    // Delete DB record
+    await sbFetch(`intermediary_documents?id=eq.${docId}`, { method: 'DELETE' });
+
+    // Find parent int id from path and reload
+    const intId = filePath.split('/')[0];
+    _loadIntDocs(intId);
+  } catch(e) {
+    alert('Error deleting: ' + e.message);
   }
 }
 
